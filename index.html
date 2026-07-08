@@ -1454,16 +1454,32 @@ function fmtSigned(n) { const r = Math.round(n); return (r >= 0 ? '+' : '') + r;
 
 function renderYTD(lastIdx) {
   const priorIdx = lastIdx - 52;
-  const year = yearOf(HIST.es[lastIdx].date);
+  const lastRow = HIST.es[lastIdx];
+  const year = yearOf(lastRow.date);
   let cur = 0, prior = 0;
   HIST_COUNTRIES.forEach(c => {
     cur   += ytdThroughIndex(c, lastIdx);
     prior += ytdThroughIndex(c, priorIdx);
   });
   const delta = prior > 0 ? ((cur - prior) / prior * 100) : null;
-  const lastDate = new Date(HIST.es[lastIdx].date + 'T00:00:00');
+
+  // El bucket guarda la fecha de INICIO de semana (domingo). Mostrar esa fecha
+  // tal cual induce a pensar que el dato está "parado" varios días atrás.
+  // Si la última semana es la actual (parcial), el corte real es LAST_VERIFIED_DAY
+  // (el último día con dato verificado, no el primer día de esa semana). Si la
+  // semana ya cerró, el corte real es el ÚLTIMO día de esa semana (inicio+6),
+  // no el primero.
+  let lastDate, noteText;
+  if (lastRow.partial) {
+    lastDate = new Date(LAST_VERIFIED_DAY + 'T00:00:00');
+    noteText = 'semana en curso, dato parcial hasta ' + fmtShort(lastDate);
+  } else {
+    lastDate = new Date(lastRow.date + 'T00:00:00');
+    lastDate.setDate(lastDate.getDate() + 6);
+    noteText = 'última semana completa con datos';
+  }
   document.getElementById('ytdLabel').innerHTML = 'YTD &nbsp;Ene–' + fmtShort(lastDate) + ' ' + year +
-    '<span class="ytd-note">(última semana completa con datos)</span>';
+    '<span class="ytd-note">(' + noteText + ')</span>';
   document.getElementById('ytdVal').textContent = fmtEUR(cur);
   document.getElementById('ytdCompareVal').textContent = fmtEUR(prior);
   document.getElementById('ytdCompareYear').textContent = year - 1;
