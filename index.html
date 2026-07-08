@@ -378,7 +378,7 @@ canvas.donut { display: block; }
     <span class="hdr-slash">/</span>
     <span class="hdr-title">Velamen Analytics</span>
   </div>
-  <span class="hdr-sub">Generado 2 Jul 2026</span>
+  <span class="hdr-sub" id="hdrSub">Datos verificados hasta —</span>
 </div>
 
 <!-- ═══ CONTROL BAR ═══ -->
@@ -2421,4 +2421,11 @@ function initDefaultRange() {
 
 // Init labels
 initDefaultRange();
+
+/* Cabecera: en vez de una fecha de "generado" fija en el HTML (que quedaba
+   obsoleta en cada redeploy sin que nadie la tocara), se deriva de
+   LAST_VERIFIED_DAY — el mismo dato que las tareas programadas ya actualizan
+   automáticamente en cada ejecución — así se mantiene correcta sola. */
+document.getElementById('hdrSub').textContent =
+  'Datos verificados hasta ' + fmtShort(new Date(LAST_VERIFIED_DAY + 'T00:00:00'));
 </script>
