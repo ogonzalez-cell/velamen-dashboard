@@ -1560,9 +1560,16 @@ function shiftYearStr(dateStr, years) {
 
 const MAX_DAILY_CHART_DAYS = 62; // no silent cap: si el rango es más largo, se avisa y se recorta
 
+// Recuerda el último rango dibujado para poder re-renderizar en resize (ver
+// window.addEventListener('resize', ...) más abajo) — sin esto, el canvas se queda
+// con el ancho de su primer render y no sigue el ancho de la tarjeta al cambiar
+// el tamaño de la ventana (bug real detectado por el cliente, 15 Jul 2026).
+let _dailyChartLastRange = null;
+
 function renderDailyChart(fromStr, toStr) {
   const card = document.getElementById('dailyChartCard');
   if (!card) return;
+  _dailyChartLastRange = [fromStr, toStr];
 
   let curFrom = fromStr, curTo = toStr;
   const totalDays = Math.round((new Date(toStr) - new Date(fromStr)) / 86400000) + 1;
@@ -1652,6 +1659,10 @@ function renderDailyChart(fromStr, toStr) {
     }
   });
 }
+
+window.addEventListener('resize', () => {
+  if (_dailyChartLastRange) renderDailyChart(_dailyChartLastRange[0], _dailyChartLastRange[1]);
+});
 
 function refreshFromHistory(fromStr, toStr, periodLabel) {
   const indices = findMatchedIndices(fromStr, toStr);
