@@ -679,12 +679,6 @@ canvas.donut { display: block; }
       <span class="inv-card-title">🇫🇷 Francia</span>
       <span class="inv-status warning" id="invFrStatus">Aged 44%</span>
     </div>
-    <div class="inv-row" id="frSkuDetail">
-      <div class="inv-asin">B07SS9K7JQ</div>
-      <div class="inv-desc">Housse de Matelas 160×190cm (R2 descatalogado)</div>
-      <div class="inv-detail">Sellable: <strong id="frAsin1Sellable">—</strong></div>
-      <div class="inv-tags" id="frAsin1Tags"></div>
-    </div>
     <div class="inv-row" id="frSkuDetail2">
       <div class="inv-asin">B0GSRXYPMN</div>
       <div class="inv-desc">Housse de Matelas 140×190cm (sustituto R2)</div>
@@ -1772,7 +1766,9 @@ function renderFrSku(idx) {
   const staleNote = skuIdx !== idx
     ? 'dato SKU del ' + fmtShort(new Date(week.date + 'T00:00:00')) + ' (aún sin sincronizar la última semana)'
     : null;
-  renderFrSkuRow('frAsin1', week.asin1, staleNote);
+  // B07SS9K7JQ (asin1) está descatalogado — a petición del cliente (15 Jul 2026) ya no
+  // se muestra en la tarjeta de Francia, no aporta nada de valor operativo. Se mantiene
+  // en FR_SKU_HIST solo por si hace falta como referencia histórica de la transición.
   renderFrSkuRow('frAsin2', week.asin2, staleNote);
 }
 
