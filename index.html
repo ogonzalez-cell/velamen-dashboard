@@ -1139,7 +1139,7 @@ const FR_SKU_HIST = [
   {"date":"2026-06-14","asin1":{"sellable":6,"unsellable":0,"aged90":0,"openPo":0},"asin2":{"sellable":92,"unsellable":0,"aged90":0,"openPo":0}},
   {"date":"2026-06-21","asin1":{"sellable":6,"unsellable":0,"aged90":0,"openPo":0},"asin2":{"sellable":77,"unsellable":0,"aged90":68,"openPo":0}},
   {"date":"2026-06-28","asin1":null,"asin2":null},
-  {"date":"2026-07-12","asin1":{"sellable":6,"unsellable":0,"aged90":0,"openPo":0},"asin2":{"sellable":68,"unsellable":0,"aged90":64,"openPo":0}}
+  {"date":"2026-07-12","asin1":{"sellable":4,"unsellable":0,"aged90":0,"openPo":0,"receivedUnits":0,"receivedCost":0},"asin2":{"sellable":74,"unsellable":0,"aged90":63,"openPo":0,"receivedUnits":19,"receivedCost":290.70}}
 ];
 
 /* ──────────────────────────────────────────
@@ -1735,10 +1735,21 @@ function renderFrSkuRow(prefix, asinData, staleNote) {
   }
   sellableEl.innerHTML = fmtUnits(asinData.sellable) + (staleNote ? ' <span class="itag nopo">' + staleNote + '</span>' : '');
   const tags = [];
+  // Aviso de reposición SIEMPRE visible (a petición explícita del cliente, 15 Jul 2026):
+  // para este ASIN en concreto necesita ver en todo momento si ha entrado stock nuevo
+  // (PO recibido) esta semana, no solo el nivel de stock — es la señal que le indica si
+  // Amazon está reponiendo automáticamente o si el ASIN se ha quedado sin flujo de POs.
+  const received = asinData.receivedUnits || 0;
+  if (received > 0) {
+    const costStr = asinData.receivedCost ? ' (' + fmtEUR(asinData.receivedCost) + ')' : '';
+    tags.push('<span class="itag ok">✓ PO recibido: +' + fmtUnits(received) + costStr + '</span>');
+  } else {
+    tags.push('<span class="itag nopo">Sin PO recibido esta semana</span>');
+  }
   if (asinData.sellable <= 10) tags.push('<span class="itag oos">OOS inminente</span>');
   if (asinData.unsellable > 0) tags.push('<span class="itag oos">' + fmtUnits(asinData.unsellable) + ' unsellable</span>');
   if (asinData.aged90 > 0) tags.push('<span class="itag aged">' + fmtUnits(asinData.aged90) + ' aged 90d+</span>');
-  tags.push('<span class="itag nopo">' + (asinData.openPo > 0 ? fmtUnits(asinData.openPo) + ' en PO' : '0 POs') + '</span>');
+  tags.push('<span class="itag nopo">' + (asinData.openPo > 0 ? fmtUnits(asinData.openPo) + ' en PO abierta' : '0 POs abiertas') + '</span>');
   tagsEl.innerHTML = tags.join('');
 }
 
