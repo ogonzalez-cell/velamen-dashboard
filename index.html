@@ -925,7 +925,7 @@ canvas.donut { display: block; }
     <div class="kpi-badges"><span class="badge flat" id="selKpiConvBadge">—</span></div>
   </div>
 </div>
-<div class="ai-comment" id="selSummarySub"><span class="ai-icon">💬</span><span>Comparado siempre con el mismo periodo del año anterior.</span></div>
+<div class="ai-comment" id="selSummarySub"><span class="ai-icon">💬</span><span>Comparado siempre con el mismo periodo del año anterior. Importes convertidos de GBP a EUR a tipo fijo 1 £ = 1,1736 € (15 jul 2026) para homogeneidad con la vista Vendor — MerchantSpring reporta este canal en libras.</span></div>
 
 <!-- ══════════════════ GRÁFICO DIARIO ══════════════════ -->
 <div class="card" id="selDailyChartCard" style="margin-top:14px;margin-bottom:14px;">
@@ -2856,7 +2856,14 @@ function initDefaultRange() {
    Un único canal (no hay desglose por país), así que la mayoría de funciones
    son versiones simplificadas de sus equivalentes Vendor (sin bucle por país).
 ═══════════════════════════════════════════════════════════ */
-function fmtGBP(n) { return Math.round(n).toLocaleString('es-ES') + ' £'; }
+/* MerchantSpring devuelve Seller UK en GBP nativamente. Para que el dashboard
+   sea homogéneo con la vista Vendor (todo en €), se convierte a EUR solo en
+   pantalla con un tipo fijo — el dato guardado en UK_DATA sigue siendo GBP puro,
+   solo cambia el formateo. Tipo de cambio: 1 GBP = 1,1736 EUR (BCE/mercado, 15 jul 2026).
+   Actualizar GBP_EUR_RATE en cada refresco de datos si se quiere mantener preciso. */
+const GBP_EUR_RATE = 1.1736;
+function fmtGBP(n) { return Math.round(n * GBP_EUR_RATE).toLocaleString('es-ES') + ' €'; }
+function fmtGBPRaw(n) { return Math.round(n).toLocaleString('es-ES') + ' £'; }
 
 function ukFindMatchedIndices(fromStr, toStr) {
   const from = new Date(fromStr + 'T00:00:00');
@@ -3261,7 +3268,7 @@ function selRefreshAdsSummary(indices) {
   document.getElementById('selAdsUnits').textContent = Math.round(units).toLocaleString('es-ES');
   document.getElementById('selAdsConv').textContent = conv.toFixed(1).replace('.', ',') + '%';
   document.getElementById('selAdsCtr').textContent = ctr.toFixed(2).replace('.', ',') + '%';
-  document.getElementById('selAdsCpc').textContent = cpc.toFixed(2).replace('.', ',') + ' £';
+  document.getElementById('selAdsCpc').textContent = (cpc * GBP_EUR_RATE).toFixed(2).replace('.', ',') + ' €';
 }
 
 /* ── Top productos por Ads (paginado) — % = venta de anuncios ÷ venta TOTAL de ese producto ── */
