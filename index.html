@@ -1275,6 +1275,7 @@ function findMatchedIndices(fromStr, toStr) {
   const ref  = HIST.es;
   const indices = [];
   for (let i = 0; i < ref.length; i++) {
+    if (!ref[i]) continue;
     const bStart = new Date(ref[i].date + 'T00:00:00');
     const bEnd   = new Date(bStart); bEnd.setDate(bEnd.getDate() + 6);
     if (bEnd >= from && bStart <= to) indices.push(i);
@@ -2084,6 +2085,7 @@ function findMatchedIndicesIn(arr, fromStr, toStr) {
   const to   = new Date(toStr + 'T23:59:59');
   const indices = [];
   for (let i = 0; i < arr.length; i++) {
+    if (!arr[i]) continue;
     const bStart = new Date(arr[i].date + 'T00:00:00');
     const bEnd   = new Date(bStart); bEnd.setDate(bEnd.getDate() + 6);
     if (bEnd >= from && bStart <= to) indices.push(i);
@@ -2610,6 +2612,7 @@ function ukFindMatchedIndices(fromStr, toStr) {
   const ref  = UK_DATA.weekly;
   const indices = [];
   for (let i = 0; i < ref.length; i++) {
+    if (!ref[i]) continue;
     const bStart = new Date(ref[i].date + 'T00:00:00');
     const bEnd   = new Date(bStart); bEnd.setDate(bEnd.getDate() + 6);
     if (bEnd >= from && bStart <= to) indices.push(i);
