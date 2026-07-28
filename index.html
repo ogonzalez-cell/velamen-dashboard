@@ -1655,6 +1655,19 @@ window.addEventListener('resize', () => {
   if (_dailyChartLastRange) renderDailyChart(_dailyChartLastRange[0], _dailyChartLastRange[1]);
 });
 
+/* Aísla cada sección del dashboard: si una sección lanza una excepción (dato
+   corrupto, hueco null, etc.), las demás secciones deben seguir
+   renderizándose con lo que tengan. Antes un fallo en refreshAdsFromHistory
+   tumbaba en cascada Inventario/PO/Top Productos porque las 3 llamadas
+   estaban seguidas sin aislar (ver [[project_weekly_dashboard]] v36, 28 Jul 2026). */
+function safeSection(label, fn) {
+  try {
+    fn();
+  } catch (e) {
+    console.error('[dashboard] Sección "' + label + '" falló, resto del dashboard sigue funcionando:', e);
+  }
+}
+
 function refreshFromHistory(fromStr, toStr, periodLabel) {
   const indices = findMatchedIndices(fromStr, toStr);
   const note = document.querySelector('.ctrl-delay-note');
@@ -1671,16 +1684,18 @@ function refreshFromHistory(fromStr, toStr, periodLabel) {
       'Último día con datos completos: <strong>' + lastCompleteDataDate() + '</strong>.';
   }
   const priorYear = yearOf(HIST.es[lastIdx].date) - 1;
-  renderKPIs(indices, priorYear);
-  renderYTD(lastIdx);
-  renderDailyChart(fromStr, toStr);
-  const compareInner = document.getElementById('compareLabel').textContent.replace(/^vs\s*/, '');
-  document.getElementById('revenueEyebrow').innerHTML =
-    'Ordered Revenue — <strong>' + periodLabel + '</strong> vs <strong>' + compareInner + '</strong>' +
-    (isPartial ? ' <span style="font-weight:400;">(última semana, dato parcial por delay 48h — último día completo: ' + lastCompleteDataDate() + ')</span>' : '');
-  refreshAdsFromHistory(fromStr, toStr, periodLabel);
-  refreshInventoryFromHistory(fromStr, toStr, periodLabel);
-  refreshProductsFromHistory(toStr);
+  safeSection('KPIs', () => renderKPIs(indices, priorYear));
+  safeSection('YTD', () => renderYTD(lastIdx));
+  safeSection('Gráfico diario', () => renderDailyChart(fromStr, toStr));
+  safeSection('Eyebrow revenue', () => {
+    const compareInner = document.getElementById('compareLabel').textContent.replace(/^vs\s*/, '');
+    document.getElementById('revenueEyebrow').innerHTML =
+      'Ordered Revenue — <strong>' + periodLabel + '</strong> vs <strong>' + compareInner + '</strong>' +
+      (isPartial ? ' <span style="font-weight:400;">(última semana, dato parcial por delay 48h — último día completo: ' + lastCompleteDataDate() + ')</span>' : '');
+  });
+  safeSection('Ads', () => refreshAdsFromHistory(fromStr, toStr, periodLabel));
+  safeSection('Inventario/PO', () => refreshInventoryFromHistory(fromStr, toStr, periodLabel));
+  safeSection('Top Productos', () => refreshProductsFromHistory(toStr));
   if (!isInitialLoad) {
     flashKpis();
     showToast('✓', 'Datos actualizados — ' + periodLabel, { duration: 2200 });
@@ -3102,16 +3117,18 @@ function onRangoChangeSel() {
 function refreshSellerFromHistory(fromStr, toStr, periodLabel) {
   const indices = ukFindMatchedIndices(fromStr, toStr);
   if (!indices.length) return;
-  document.getElementById('selSummaryEyebrow').innerHTML =
-    'Resumen — Velamen UK Seller · <strong>' + periodLabel + '</strong> vs <strong>' +
-    document.getElementById('compareLabelSel').textContent.replace(/^vs\s*/, '') + '</strong>';
-  ukRenderSummary(indices);
-  ukRenderDailyChart(fromStr, toStr);
-  ukRenderYtdChart(toStr);
-  ukRefreshGroupTable(toStr);
-  selRefreshProducts(toStr);
-  selRefreshAdsSummary(indices);
-  selRefreshAdsProducts(toStr);
+  safeSection('UK eyebrow', () => {
+    document.getElementById('selSummaryEyebrow').innerHTML =
+      'Resumen — Velamen UK Seller · <strong>' + periodLabel + '</strong> vs <strong>' +
+      document.getElementById('compareLabelSel').textContent.replace(/^vs\s*/, '') + '</strong>';
+  });
+  safeSection('UK resumen', () => ukRenderSummary(indices));
+  safeSection('UK gráfico diario', () => ukRenderDailyChart(fromStr, toStr));
+  safeSection('UK gráfico YTD', () => ukRenderYtdChart(toStr));
+  safeSection('UK tabla grupos', () => ukRefreshGroupTable(toStr));
+  safeSection('UK productos', () => selRefreshProducts(toStr));
+  safeSection('UK ads resumen', () => selRefreshAdsSummary(indices));
+  safeSection('UK ads productos', () => selRefreshAdsProducts(toStr));
   isInitialLoadSel = false;
 }
 
@@ -3143,14 +3160,17 @@ function switchView(view) {
   }
 }
 
-// Init labels
-initDefaultRange();
-initDefaultRangeSel();
+// Init labels — cada bloque aislado con safeSection: un fallo en Vendor no debe
+// impedir que UK Seller (u otras líneas de abajo, como la cabecera) se inicialicen.
+safeSection('Init Vendor', () => initDefaultRange());
+safeSection('Init UK Seller', () => initDefaultRangeSel());
 
 /* Cabecera: en vez de una fecha de "generado" fija en el HTML (que quedaba
    obsoleta en cada redeploy sin que nadie la tocara), se deriva de
    LAST_VERIFIED_DAY — el mismo dato que las tareas programadas ya actualizan
    automáticamente en cada ejecución — así se mantiene correcta sola. */
-document.getElementById('hdrSub').textContent =
-  'Datos verificados hasta ' + fmtShort(new Date(LAST_VERIFIED_DAY + 'T00:00:00'));
+safeSection('Cabecera', () => {
+  document.getElementById('hdrSub').textContent =
+    'Datos verificados hasta ' + fmtShort(new Date(LAST_VERIFIED_DAY + 'T00:00:00'));
+});
 </script>
