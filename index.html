@@ -1526,15 +1526,18 @@ function lastCompleteDataDate() {
    puntuales (Black Friday, roturas de stock, picos de promoción) no queden
    diluidos dentro del agregado de una semana entera.
 ────────────────────────────────────────── */
-function dailyTotalsForRange(fromStr, toStr) {
-  // Suma los 4 países día a día para cada fecha en [fromStr, toStr] (inclusive).
+function dailyTotalsForRange(fromStr, toStr, country) {
+  // Suma día a día para cada fecha en [fromStr, toStr] (inclusive).
+  // Sin `country`: suma los 4 mercados. Con `country`: solo ese mercado
+  // (ver selectedCountry / toggleCountryHighlight más abajo).
+  const countries = country ? [country] : HIST_COUNTRIES;
   const from = new Date(fromStr + 'T00:00:00');
   const to   = new Date(toStr + 'T00:00:00');
   const out = [];
   for (let d = new Date(from); d <= to; d.setDate(d.getDate() + 1)) {
     const dateStr = fmtISO(d);
     let total = 0, any = false;
-    HIST_COUNTRIES.forEach(c => {
+    countries.forEach(c => {
       const row = DAILY_HIST[c] && DAILY_HIST[c].find(r => r.date === dateStr);
       if (row) { total += row.revenue; any = true; }
     });
@@ -1574,19 +1577,21 @@ function renderDailyChart(fromStr, toStr) {
     truncNote = ' — mostrando los últimos ' + MAX_DAILY_CHART_DAYS + ' días del rango (rango completo: ' + totalDays + ' días, demasiado ancho para un gráfico diario legible)';
   }
 
-  const curDays = dailyTotalsForRange(curFrom, curTo);
+  const curDays = dailyTotalsForRange(curFrom, curTo, selectedCountry);
+  const priorCountries = selectedCountry ? [selectedCountry] : HIST_COUNTRIES;
   const priorDays = curDays.map(d => {
     const priorDate = shiftYearStr(d.date, -1);
     let total = 0, any = false;
-    HIST_COUNTRIES.forEach(c => {
+    priorCountries.forEach(c => {
       const row = DAILY_HIST[c] && DAILY_HIST[c].find(r => r.date === priorDate);
       if (row) { total += row.revenue; any = true; }
     });
     return any ? total : null;
   });
 
+  const countryNote = selectedCountry ? ' · ' + HIST_FLAG[selectedCountry] + ' ' + capName(selectedCountry) : ' · Total 4 mercados';
   document.getElementById('dailyChartDesc').textContent =
-    'Ordered Revenue por día · rango elegido vs mismo día del año anterior' + truncNote;
+    'Ordered Revenue por día · rango elegido vs mismo día del año anterior' + countryNote + truncNote;
 
   const canvas = document.getElementById('dailyChart');
   const ctx = canvas.getContext('2d');
@@ -2434,6 +2439,10 @@ function applyCountryHighlight() {
     if (!selectedCountry) return;
     el.classList.add(el.getAttribute('data-country') === selectedCountry ? 'country-active' : 'country-dim');
   });
+  // El gráfico "Comparativa diaria" no es un elemento [data-country] resaltable —
+  // en vez de eso, al cambiar de país redibuja sus propias barras filtradas a
+  // solo ese mercado (o al total de 4 si se deselecciona). Ver dailyTotalsForRange.
+  if (_dailyChartLastRange) safeSection('Gráfico diario (filtro país)', () => renderDailyChart(_dailyChartLastRange[0], _dailyChartLastRange[1]));
 }
 
 /* ──────────────────────────────────────────
