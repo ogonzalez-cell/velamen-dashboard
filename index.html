@@ -1339,16 +1339,34 @@ function setBadge(el, yoy) {
   else { el.className = 'badge warn'; el.textContent = '↓ ' + Math.abs(r) + '%'; }
 }
 
-function renderKPIs(indices, priorYear) {
+/* Suma día a día desde DAILY_HIST en vez de por semanas completas de HIST —
+   necesario porque cualquier fecha "hasta" dentro de la semana ISO en curso
+   (p.ej. 01-05 ago, misma semana que 01-08 ago) solapaba las mismas semanas
+   enteras y daba el mismo total sin importar el día exacto elegido. Bug real
+   detectado por Oliver 7 ago 2026: 01-03 ago y 01-05 ago mostraban idénticas
+   cifras en las tarjetas de KPI. */
+function sumDailyRange(country, fromStr, toStr) {
+  const arr = DAILY_HIST[country];
+  if (!arr) return 0;
+  let sum = 0;
+  for (let i = 0; i < arr.length; i++) {
+    const d = arr[i];
+    if (d && d.date >= fromStr && d.date <= toStr) sum += d.revenue;
+  }
+  return sum;
+}
+
+function shiftYear(dateStr, delta) {
+  const parts = dateStr.split('-');
+  return (parseInt(parts[0], 10) + delta) + '-' + parts[1] + '-' + parts[2];
+}
+
+function renderKPIs(fromStr, toStr, priorYear) {
+  const priorFrom = shiftYear(fromStr, -1), priorTo = shiftYear(toStr, -1);
   const totals = {}, priorTotals = {};
   REVENUE_COUNTRIES.forEach(c => {
-    let cur = 0, prior = 0;
-    indices.forEach(idx => {
-      cur += HIST[c][idx].revenue;
-      const pidx = idx - 52;
-      if (HIST[c][pidx]) prior += HIST[c][pidx].revenue;
-    });
-    totals[c] = cur; priorTotals[c] = prior;
+    totals[c] = sumDailyRange(c, fromStr, toStr);
+    priorTotals[c] = sumDailyRange(c, priorFrom, priorTo);
   });
   const totalCur   = REVENUE_COUNTRIES.reduce((s, c) => s + totals[c], 0);
   const totalPrior = REVENUE_COUNTRIES.reduce((s, c) => s + priorTotals[c], 0);
@@ -1368,7 +1386,7 @@ function renderKPIs(indices, priorYear) {
     document.getElementById('kpi' + HIST_CAP[c] + 'Sub').textContent = mix + '% del mix';
   });
 
-  renderRevenueComment(indices, totalYoY, countryYoy, totals, priorYear);
+  renderRevenueComment(findMatchedIndices(fromStr, toStr), totalYoY, countryYoy, totals, priorYear);
 }
 
 /* ──────────────────────────────────────────
@@ -1727,7 +1745,7 @@ function refreshFromHistory(fromStr, toStr, periodLabel) {
       'Último día con datos completos: <strong>' + lastCompleteDataDate() + '</strong>.';
   }
   const priorYear = yearOf(HIST.es[lastIdx].date) - 1;
-  safeSection('KPIs', () => renderKPIs(indices, priorYear));
+  safeSection('KPIs', () => renderKPIs(fromStr, toStr, priorYear));
   safeSection('YTD', () => renderYTD(lastIdx));
   safeSection('Gráfico diario', () => renderDailyChart(fromStr, toStr));
   safeSection('Eyebrow revenue', () => {
