@@ -523,6 +523,7 @@ canvas.donut { display: block; }
   <div class="hdr-view-toggle" role="tablist">
     <button class="hdr-view-btn active" id="viewBtnVendor" onclick="switchView('vendor')">Vendor</button>
     <button class="hdr-view-btn" id="viewBtnSeller" onclick="switchView('seller')">UK Seller</button>
+    <button class="hdr-view-btn" id="viewBtnForecast" onclick="switchView('forecast')">Forecast</button>
   </div>
   <span class="hdr-sub" id="hdrSub">Datos verificados hasta —</span>
 </div>
@@ -985,168 +986,6 @@ canvas.donut { display: block; }
   <div class="src-note">Fuente: MerchantSpring · Ordered Revenue · Top 50 combinado de los 5 mercados del mes correspondiente al periodo seleccionado</div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════
-     FORECAST DE DEMANDA (Global + por país)
-     Añadido 2026-09-18. Solo ES tiene modelo entrenado hoy;
-     FR/IT/DE muestran estado vacío hasta que exista su pipeline.
-════════════════════════════════════════════════════════ -->
-<div class="section-eyebrow">Forecast de Demanda</div>
-<div class="ctrl-tabs" role="tablist" id="fcTabs" style="margin-bottom:10px;">
-  <button class="ctrl-tab active" data-fc-tab="global" onclick="switchForecastTab('global')">Global</button>
-  <button class="ctrl-tab" data-fc-tab="es" onclick="switchForecastTab('es')">🇪🇸 España</button>
-  <button class="ctrl-tab" data-fc-tab="fr" onclick="switchForecastTab('fr')">🇫🇷 Francia</button>
-  <button class="ctrl-tab" data-fc-tab="it" onclick="switchForecastTab('it')">🇮🇹 Italia</button>
-  <button class="ctrl-tab" data-fc-tab="de" onclick="switchForecastTab('de')">🇩🇪 Alemania</button>
-</div>
-
-<div class="fc-tabpanel active" id="fcPanelGlobal">
-  <table class="fc-compare-table">
-    <thead>
-      <tr><th>País</th><th>R²</th><th>Variables</th><th>YoY total</th><th>Presupuesto Ads</th><th>Alerta TACOS</th></tr>
-    </thead>
-    <tbody id="fcGlobalTableBody"></tbody>
-  </table>
-</div>
-
-<div class="fc-tabpanel" id="fcPanelEs">
-  <!-- Sub-pestañas por categoría (2026-09-22). Un único bloque de HTML: al
-       cambiar de pestaña el JS re-renderiza los mismos nodos con los datos de
-       FORECAST_DATA_ES.es[categoria]. -->
-  <div class="fc-cat-tabs" role="tablist" id="fcCatTabs">
-    <button class="fc-cat-tab active" type="button" data-fc-cat-tab="almohada" onclick="switchForecastCatTab('es', 'almohada')">Almohada</button>
-    <button class="fc-cat-tab" type="button" data-fc-cat-tab="fda_colchon" onclick="switchForecastCatTab('es', 'fda_colchon')">Funda de colchón</button>
-    <button class="fc-cat-tab" type="button" data-fc-cat-tab="fda_almohada" onclick="switchForecastCatTab('es', 'fda_almohada')">Funda de almohada</button>
-  </div>
-  <div id="fcEsReliabilityBanner" style="display:none; background:var(--warn-bg); color:var(--warn); border-radius:var(--radius); padding:12px 16px; margin-bottom:10px; font-size:14px;"></div>
-  <div class="fc-kpi-row">
-    <div class="fc-kpi-card"><div class="fc-kpi-label">R²</div><div class="fc-kpi-value" id="fcEsR2"></div></div>
-    <div class="fc-kpi-card"><div class="fc-kpi-label">Variables usadas</div><div class="fc-kpi-value" id="fcEsColumns" style="font-size:15px;"></div></div>
-    <div class="fc-kpi-card"><div class="fc-kpi-label">Observaciones</div><div class="fc-kpi-value" id="fcEsNobs"></div></div>
-  </div>
-  <!-- ── Modelo predictivo (2026-09-22) — desglose por factor ── -->
-  <div class="section-eyebrow" style="margin-top:14px;">Modelo predictivo</div>
-  <div class="fc-model-card">
-    <div class="fc-model-intro" id="fcEsModelIntro"></div>
-    <div id="fcEsFactorList"></div>
-    <div class="fc-model-note">Qué se ha dejado fuera y por qué: las visitas (sessions) no entran en el modelo porque son consecuencia de los anuncios y del posicionamiento orgánico, no una causa propia — meterlas haría que el modelo se explicase a sí mismo. Los periodos de promoción están declarados pero hoy no hay ninguno cargado para España, así que el motor los descarta solo por falta de variación. El peso de cada factor mide cuánto pesa dentro de este modelo, no cuánta venta genera en euros: dos factores pueden pesar parecido y tener un impacto económico muy distinto.</div>
-  </div>
-
-  <div class="section-eyebrow" style="margin-top:4px;">Proyección del mes en curso</div>
-  <div class="fc-mtd-row">
-    <div class="fc-kpi-card"><div class="fc-kpi-label">Ventas reales hasta hoy</div><div class="fc-kpi-value" id="fcEsMtdActual"></div><div class="fc-kpi-sub" id="fcEsMtdActualSub"></div></div>
-    <div class="fc-kpi-card"><div class="fc-kpi-label">Proyección resto del mes (modelo)</div><div class="fc-kpi-value" id="fcEsMtdRemaining"></div><div class="fc-kpi-sub" id="fcEsMtdRemainingSub"></div></div>
-    <div class="fc-kpi-card"><div class="fc-kpi-label">Total proyectado del mes</div><div class="fc-kpi-value" id="fcEsMtdTotal"></div></div>
-    <div class="fc-kpi-card"><div class="fc-kpi-label">% de cumplimiento</div><div class="fc-kpi-value" id="fcEsMtdPct"></div><div class="fc-kpi-sub">Ventas reales sobre el total proyectado del mes</div></div>
-  </div>
-  <div class="card-desc" style="font-style:italic; margin-bottom:12px;">Cómo se calcula: ventas reales de los días ya transcurridos + la predicción del modelo (los mismos coeficientes de la sección de arriba, sin reentrenar) para los días que faltan del mes. Para esos días futuros, cada factor (Ads, Helium10, BSR, precio...) se asume igual a su media de los últimos 14 días reales — es la única hipótesis razonable sin un plan de ads/precio ya cargado para lo que queda de mes. "Fin de semana" sí se calcula exacto por calendario, no por promedio. Es una proyección, no una promesa: si el ritmo de ads, precio o demanda cambia respecto a los últimos días, el resultado real se desviará de esta cifra.</div>
-  <div class="fc-chart-card">
-    <div class="daily-legend">
-      <span><i class="dot" style="background:var(--ink)"></i> Ventas reales</span>
-      <span><i class="dot" style="background:var(--accent)"></i> Modelo (línea continua = ajuste sobre días ya reales · discontinua = proyección resto de mes)</span>
-    </div>
-    <svg class="fc-chart-svg" id="fcEsChart" viewBox="0 0 900 300" style="width:100%; height:auto;"></svg>
-  </div>
-  <div class="fc-pace-row">
-    <div class="fc-pace-card"><div class="fc-pace-label">YoY Total</div><div class="fc-pace-figures"><span class="fc-pace-this" id="fcEsYoyTotalThis"></span><span class="fc-pace-last" id="fcEsYoyTotalLast"></span></div><span class="badge" id="fcEsYoyTotalBadge"></span></div>
-    <div class="fc-pace-card"><div class="fc-pace-label">YoY Orgánico</div><div class="fc-pace-figures"><span class="fc-pace-this" id="fcEsYoyOrganicThis"></span><span class="fc-pace-last" id="fcEsYoyOrganicLast"></span></div><span class="badge" id="fcEsYoyOrganicBadge"></span></div>
-    <div class="fc-pace-card"><div class="fc-pace-label">YoY Ads</div><div class="fc-pace-figures"><span class="fc-pace-this" id="fcEsYoyAdsThis"></span><span class="fc-pace-last" id="fcEsYoyAdsLast"></span></div><span class="badge" id="fcEsYoyAdsBadge"></span></div>
-  </div>
-  <div class="fc-ads-block">
-    <div><div class="fc-ads-hero-label">Presupuesto máximo recomendado (ROAS≥4)</div><div class="fc-ads-hero-value" id="fcEsBudget"></div></div>
-    <div><span style="font-size:14px; color:#ccc;">TACOS implícito: <b id="fcEsTacos" style="color:#fff;"></b></span> <span class="fc-tacos-badge" id="fcEsTacosBadge"></span></div>
-    <!-- 4 métricas de seguimiento del ritmo de gasto (2026-09-22) -->
-    <div class="fc-ads-grid">
-      <div class="fc-ads-cell">
-        <div class="fc-ads-cell-label">Gasto en ads real hasta hoy</div>
-        <div class="fc-ads-cell-value" id="fcEsAdsSpentMtd">—</div>
-        <div class="fc-ads-cell-sub" id="fcEsAdsSpentMtdSub"></div>
-      </div>
-      <div class="fc-ads-cell">
-        <div class="fc-ads-cell-label">Ritmo esperado a estas alturas</div>
-        <div class="fc-ads-cell-value" id="fcEsAdsPace">—</div>
-        <div class="fc-ads-cell-sub" id="fcEsAdsPaceSub"></div>
-      </div>
-      <div class="fc-ads-cell">
-        <div class="fc-ads-cell-label">% de cumplimiento del ritmo</div>
-        <div class="fc-ads-cell-value" id="fcEsAdsPacePct">—</div>
-        <div class="fc-ads-cell-sub" id="fcEsAdsPacePctSub"></div>
-      </div>
-      <div class="fc-ads-cell">
-        <div class="fc-ads-cell-label">Presupuesto restante del mes</div>
-        <div class="fc-ads-cell-value" id="fcEsAdsRemaining">—</div>
-        <div class="fc-ads-cell-sub" id="fcEsAdsRemainingSub"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="fc-tabpanel" id="fcPanelFr">
-  <div class="fc-cat-tabs" role="tablist" id="fcCatTabsFr">
-    <button class="fc-cat-tab active" type="button" data-fc-cat-tab="fda_colchon" onclick="switchForecastCatTab('fr', 'fda_colchon')">Funda de colchón</button>
-    <button class="fc-cat-tab" type="button" data-fc-cat-tab="almohada" onclick="switchForecastCatTab('fr', 'almohada')">Almohada</button>
-  </div>
-  <div id="fcFrReliabilityBanner" style="display:none; background:var(--warn-bg); color:var(--warn); border-radius:var(--radius); padding:12px 16px; margin-bottom:10px; font-size:14px;"></div>
-  <div class="fc-kpi-row">
-    <div class="fc-kpi-card"><div class="fc-kpi-label">R²</div><div class="fc-kpi-value" id="fcFrR2"></div></div>
-    <div class="fc-kpi-card"><div class="fc-kpi-label">Variables usadas</div><div class="fc-kpi-value" id="fcFrColumns" style="font-size:15px;"></div></div>
-    <div class="fc-kpi-card"><div class="fc-kpi-label">Observaciones</div><div class="fc-kpi-value" id="fcFrNobs"></div></div>
-  </div>
-  <div class="section-eyebrow" style="margin-top:14px;">Modelo predictivo</div>
-  <div class="fc-model-card">
-    <div class="fc-model-intro" id="fcFrModelIntro"></div>
-    <div id="fcFrFactorList"></div>
-    <div class="fc-model-note">Qué se ha dejado fuera y por qué: las visitas (sessions) no entran en el modelo porque son consecuencia de los anuncios y del posicionamiento orgánico, no una causa propia. El peso de cada factor mide cuánto pesa dentro de este modelo, no cuánta venta genera en euros.</div>
-  </div>
-
-  <div class="section-eyebrow" style="margin-top:4px;">Proyección del mes en curso</div>
-  <div class="fc-mtd-row">
-    <div class="fc-kpi-card"><div class="fc-kpi-label">Ventas reales hasta hoy</div><div class="fc-kpi-value" id="fcFrMtdActual"></div><div class="fc-kpi-sub" id="fcFrMtdActualSub"></div></div>
-    <div class="fc-kpi-card"><div class="fc-kpi-label">Proyección resto del mes (modelo)</div><div class="fc-kpi-value" id="fcFrMtdRemaining"></div><div class="fc-kpi-sub" id="fcFrMtdRemainingSub"></div></div>
-    <div class="fc-kpi-card"><div class="fc-kpi-label">Total proyectado del mes</div><div class="fc-kpi-value" id="fcFrMtdTotal"></div></div>
-    <div class="fc-kpi-card"><div class="fc-kpi-label">% de cumplimiento</div><div class="fc-kpi-value" id="fcFrMtdPct"></div><div class="fc-kpi-sub">Ventas reales sobre el total proyectado del mes</div></div>
-  </div>
-  <div class="card-desc" style="font-style:italic; margin-bottom:12px;">Cómo se calcula: ventas reales de los días ya transcurridos + la predicción del modelo (los mismos coeficientes de la sección de arriba, sin reentrenar) para los días que faltan del mes. Para esos días futuros, cada factor se asume igual a su media de los últimos 14 días reales. "Fin de semana" sí se calcula exacto por calendario.</div>
-  <div class="fc-chart-card">
-    <div class="daily-legend">
-      <span><i class="dot" style="background:var(--ink)"></i> Ventas reales</span>
-      <span><i class="dot" style="background:var(--accent)"></i> Modelo (línea continua = ajuste sobre días ya reales · discontinua = proyección resto de mes)</span>
-    </div>
-    <svg class="fc-chart-svg" id="fcFrChart" viewBox="0 0 900 300" style="width:100%; height:auto;"></svg>
-  </div>
-  <div class="fc-pace-row">
-    <div class="fc-pace-card"><div class="fc-pace-label">YoY Total</div><div class="fc-pace-figures"><span class="fc-pace-this" id="fcFrYoyTotalThis"></span><span class="fc-pace-last" id="fcFrYoyTotalLast"></span></div><span class="badge" id="fcFrYoyTotalBadge"></span></div>
-    <div class="fc-pace-card"><div class="fc-pace-label">YoY Orgánico</div><div class="fc-pace-figures"><span class="fc-pace-this" id="fcFrYoyOrganicThis"></span><span class="fc-pace-last" id="fcFrYoyOrganicLast"></span></div><span class="badge" id="fcFrYoyOrganicBadge"></span></div>
-    <div class="fc-pace-card"><div class="fc-pace-label">YoY Ads</div><div class="fc-pace-figures"><span class="fc-pace-this" id="fcFrYoyAdsThis"></span><span class="fc-pace-last" id="fcFrYoyAdsLast"></span></div><span class="badge" id="fcFrYoyAdsBadge"></span></div>
-  </div>
-  <div class="fc-ads-block">
-    <div><div class="fc-ads-hero-label">Presupuesto máximo recomendado (ROAS≥4)</div><div class="fc-ads-hero-value" id="fcFrBudget"></div></div>
-    <div><span style="font-size:14px; color:#ccc;">TACOS implícito: <b id="fcFrTacos" style="color:#fff;"></b></span> <span class="fc-tacos-badge" id="fcFrTacosBadge"></span></div>
-    <div class="fc-ads-grid">
-      <div class="fc-ads-cell">
-        <div class="fc-ads-cell-label">Gasto en ads real hasta hoy</div>
-        <div class="fc-ads-cell-value" id="fcFrAdsSpentMtd">—</div>
-        <div class="fc-ads-cell-sub" id="fcFrAdsSpentMtdSub"></div>
-      </div>
-      <div class="fc-ads-cell">
-        <div class="fc-ads-cell-label">Ritmo esperado a estas alturas</div>
-        <div class="fc-ads-cell-value" id="fcFrAdsPace">—</div>
-        <div class="fc-ads-cell-sub" id="fcFrAdsPaceSub"></div>
-      </div>
-      <div class="fc-ads-cell">
-        <div class="fc-ads-cell-label">% de cumplimiento del ritmo</div>
-        <div class="fc-ads-cell-value" id="fcFrAdsPacePct">—</div>
-        <div class="fc-ads-cell-sub" id="fcFrAdsPacePctSub"></div>
-      </div>
-      <div class="fc-ads-cell">
-        <div class="fc-ads-cell-label">Presupuesto restante del mes</div>
-        <div class="fc-ads-cell-value" id="fcFrAdsRemaining">—</div>
-        <div class="fc-ads-cell-sub" id="fcFrAdsRemainingSub"></div>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="fc-tabpanel" id="fcPanelIt"><div class="fc-empty-state">Aún no hay modelo de forecast entrenado para Italia — próximamente.</div></div>
-<div class="fc-tabpanel" id="fcPanelDe"><div class="fc-empty-state">Aún no hay modelo de forecast entrenado para Alemania — próximamente.</div></div>
 
 </div><!-- /wrap -->
 </div><!-- /viewVendor -->
@@ -1339,6 +1178,179 @@ canvas.donut { display: block; }
 
 </div><!-- /wrap Seller -->
 </div><!-- /viewSeller -->
+
+<!-- ═══════════════════════════════════════════════════════
+     FORECAST (vista propia, separada de Vendor/UK Seller --
+     movido aquí 2026-09-25 a petición de Oliver: demasiada
+     información para convivir en la página principal)
+════════════════════════════════════════════════════════ -->
+<div id="viewForecast" class="hidden">
+<div class="wrap">
+<!-- ═══════════════════════════════════════════════════════
+     FORECAST DE DEMANDA (Global + por país)
+     Añadido 2026-09-18. Solo ES tiene modelo entrenado hoy;
+     FR/IT/DE muestran estado vacío hasta que exista su pipeline.
+════════════════════════════════════════════════════════ -->
+<div class="section-eyebrow">Forecast de Demanda</div>
+<div class="ctrl-tabs" role="tablist" id="fcTabs" style="margin-bottom:10px;">
+  <button class="ctrl-tab active" data-fc-tab="global" onclick="switchForecastTab('global')">Global</button>
+  <button class="ctrl-tab" data-fc-tab="es" onclick="switchForecastTab('es')">🇪🇸 España</button>
+  <button class="ctrl-tab" data-fc-tab="fr" onclick="switchForecastTab('fr')">🇫🇷 Francia</button>
+  <button class="ctrl-tab" data-fc-tab="it" onclick="switchForecastTab('it')">🇮🇹 Italia</button>
+  <button class="ctrl-tab" data-fc-tab="de" onclick="switchForecastTab('de')">🇩🇪 Alemania</button>
+</div>
+
+<div class="fc-tabpanel active" id="fcPanelGlobal">
+  <table class="fc-compare-table">
+    <thead>
+      <tr><th>País</th><th>R²</th><th>Variables</th><th>YoY total</th><th>Presupuesto Ads</th><th>Alerta TACOS</th></tr>
+    </thead>
+    <tbody id="fcGlobalTableBody"></tbody>
+  </table>
+</div>
+
+<div class="fc-tabpanel" id="fcPanelEs">
+  <!-- Sub-pestañas por categoría (2026-09-22). Un único bloque de HTML: al
+       cambiar de pestaña el JS re-renderiza los mismos nodos con los datos de
+       FORECAST_DATA_ES.es[categoria]. -->
+  <div class="fc-cat-tabs" role="tablist" id="fcCatTabs">
+    <button class="fc-cat-tab active" type="button" data-fc-cat-tab="almohada" onclick="switchForecastCatTab('es', 'almohada')">Almohada</button>
+    <button class="fc-cat-tab" type="button" data-fc-cat-tab="fda_colchon" onclick="switchForecastCatTab('es', 'fda_colchon')">Funda de colchón</button>
+    <button class="fc-cat-tab" type="button" data-fc-cat-tab="fda_almohada" onclick="switchForecastCatTab('es', 'fda_almohada')">Funda de almohada</button>
+  </div>
+  <div id="fcEsReliabilityBanner" style="display:none; background:var(--warn-bg); color:var(--warn); border-radius:var(--radius); padding:12px 16px; margin-bottom:10px; font-size:14px;"></div>
+  <div class="fc-kpi-row">
+    <div class="fc-kpi-card"><div class="fc-kpi-label">R²</div><div class="fc-kpi-value" id="fcEsR2"></div></div>
+    <div class="fc-kpi-card"><div class="fc-kpi-label">Variables usadas</div><div class="fc-kpi-value" id="fcEsColumns" style="font-size:15px;"></div></div>
+    <div class="fc-kpi-card"><div class="fc-kpi-label">Observaciones</div><div class="fc-kpi-value" id="fcEsNobs"></div></div>
+  </div>
+  <!-- ── Modelo predictivo (2026-09-22) — desglose por factor ── -->
+  <div class="section-eyebrow" style="margin-top:14px;">Modelo predictivo</div>
+  <div class="fc-model-card">
+    <div class="fc-model-intro" id="fcEsModelIntro"></div>
+    <div id="fcEsFactorList"></div>
+    <div class="fc-model-note">Qué se ha dejado fuera y por qué: las visitas (sessions) no entran en el modelo porque son consecuencia de los anuncios y del posicionamiento orgánico, no una causa propia — meterlas haría que el modelo se explicase a sí mismo. Los periodos de promoción están declarados pero hoy no hay ninguno cargado para España, así que el motor los descarta solo por falta de variación. El peso de cada factor mide cuánto pesa dentro de este modelo, no cuánta venta genera en euros: dos factores pueden pesar parecido y tener un impacto económico muy distinto.</div>
+  </div>
+
+  <div class="section-eyebrow" style="margin-top:4px;">Proyección del mes en curso</div>
+  <div class="fc-mtd-row">
+    <div class="fc-kpi-card"><div class="fc-kpi-label">Ventas reales hasta hoy</div><div class="fc-kpi-value" id="fcEsMtdActual"></div><div class="fc-kpi-sub" id="fcEsMtdActualSub"></div></div>
+    <div class="fc-kpi-card"><div class="fc-kpi-label">Proyección resto del mes (modelo)</div><div class="fc-kpi-value" id="fcEsMtdRemaining"></div><div class="fc-kpi-sub" id="fcEsMtdRemainingSub"></div></div>
+    <div class="fc-kpi-card"><div class="fc-kpi-label">Total proyectado del mes</div><div class="fc-kpi-value" id="fcEsMtdTotal"></div></div>
+    <div class="fc-kpi-card"><div class="fc-kpi-label">% de cumplimiento</div><div class="fc-kpi-value" id="fcEsMtdPct"></div><div class="fc-kpi-sub">Ventas reales sobre el total proyectado del mes</div></div>
+  </div>
+  <div class="card-desc" style="font-style:italic; margin-bottom:12px;">Cómo se calcula: ventas reales de los días ya transcurridos + la predicción del modelo (los mismos coeficientes de la sección de arriba, sin reentrenar) para los días que faltan del mes. Para esos días futuros, cada factor (Ads, Helium10, BSR, precio...) se asume igual a su media de los últimos 14 días reales — es la única hipótesis razonable sin un plan de ads/precio ya cargado para lo que queda de mes. "Fin de semana" sí se calcula exacto por calendario, no por promedio. Es una proyección, no una promesa: si el ritmo de ads, precio o demanda cambia respecto a los últimos días, el resultado real se desviará de esta cifra.</div>
+  <div class="fc-chart-card">
+    <div class="daily-legend">
+      <span><i class="dot" style="background:var(--ink)"></i> Ventas reales</span>
+      <span><i class="dot" style="background:var(--accent)"></i> Modelo (línea continua = ajuste sobre días ya reales · discontinua = proyección resto de mes)</span>
+    </div>
+    <svg class="fc-chart-svg" id="fcEsChart" viewBox="0 0 900 300" style="width:100%; height:auto;"></svg>
+  </div>
+  <div class="fc-pace-row">
+    <div class="fc-pace-card"><div class="fc-pace-label">YoY Total</div><div class="fc-pace-figures"><span class="fc-pace-this" id="fcEsYoyTotalThis"></span><span class="fc-pace-last" id="fcEsYoyTotalLast"></span></div><span class="badge" id="fcEsYoyTotalBadge"></span></div>
+    <div class="fc-pace-card"><div class="fc-pace-label">YoY Orgánico</div><div class="fc-pace-figures"><span class="fc-pace-this" id="fcEsYoyOrganicThis"></span><span class="fc-pace-last" id="fcEsYoyOrganicLast"></span></div><span class="badge" id="fcEsYoyOrganicBadge"></span></div>
+    <div class="fc-pace-card"><div class="fc-pace-label">YoY Ads</div><div class="fc-pace-figures"><span class="fc-pace-this" id="fcEsYoyAdsThis"></span><span class="fc-pace-last" id="fcEsYoyAdsLast"></span></div><span class="badge" id="fcEsYoyAdsBadge"></span></div>
+  </div>
+  <div class="fc-ads-block">
+    <div><div class="fc-ads-hero-label">Presupuesto máximo recomendado (ROAS≥4)</div><div class="fc-ads-hero-value" id="fcEsBudget"></div></div>
+    <div><span style="font-size:14px; color:#ccc;">TACOS implícito: <b id="fcEsTacos" style="color:#fff;"></b></span> <span class="fc-tacos-badge" id="fcEsTacosBadge"></span></div>
+    <!-- 4 métricas de seguimiento del ritmo de gasto (2026-09-22) -->
+    <div class="fc-ads-grid">
+      <div class="fc-ads-cell">
+        <div class="fc-ads-cell-label">Gasto en ads real hasta hoy</div>
+        <div class="fc-ads-cell-value" id="fcEsAdsSpentMtd">—</div>
+        <div class="fc-ads-cell-sub" id="fcEsAdsSpentMtdSub"></div>
+      </div>
+      <div class="fc-ads-cell">
+        <div class="fc-ads-cell-label">Ritmo esperado a estas alturas</div>
+        <div class="fc-ads-cell-value" id="fcEsAdsPace">—</div>
+        <div class="fc-ads-cell-sub" id="fcEsAdsPaceSub"></div>
+      </div>
+      <div class="fc-ads-cell">
+        <div class="fc-ads-cell-label">% de cumplimiento del ritmo</div>
+        <div class="fc-ads-cell-value" id="fcEsAdsPacePct">—</div>
+        <div class="fc-ads-cell-sub" id="fcEsAdsPacePctSub"></div>
+      </div>
+      <div class="fc-ads-cell">
+        <div class="fc-ads-cell-label">Presupuesto restante del mes</div>
+        <div class="fc-ads-cell-value" id="fcEsAdsRemaining">—</div>
+        <div class="fc-ads-cell-sub" id="fcEsAdsRemainingSub"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="fc-tabpanel" id="fcPanelFr">
+  <div class="fc-cat-tabs" role="tablist" id="fcCatTabsFr">
+    <button class="fc-cat-tab active" type="button" data-fc-cat-tab="fda_colchon" onclick="switchForecastCatTab('fr', 'fda_colchon')">Funda de colchón</button>
+    <button class="fc-cat-tab" type="button" data-fc-cat-tab="almohada" onclick="switchForecastCatTab('fr', 'almohada')">Almohada</button>
+  </div>
+  <div id="fcFrReliabilityBanner" style="display:none; background:var(--warn-bg); color:var(--warn); border-radius:var(--radius); padding:12px 16px; margin-bottom:10px; font-size:14px;"></div>
+  <div class="fc-kpi-row">
+    <div class="fc-kpi-card"><div class="fc-kpi-label">R²</div><div class="fc-kpi-value" id="fcFrR2"></div></div>
+    <div class="fc-kpi-card"><div class="fc-kpi-label">Variables usadas</div><div class="fc-kpi-value" id="fcFrColumns" style="font-size:15px;"></div></div>
+    <div class="fc-kpi-card"><div class="fc-kpi-label">Observaciones</div><div class="fc-kpi-value" id="fcFrNobs"></div></div>
+  </div>
+  <div class="section-eyebrow" style="margin-top:14px;">Modelo predictivo</div>
+  <div class="fc-model-card">
+    <div class="fc-model-intro" id="fcFrModelIntro"></div>
+    <div id="fcFrFactorList"></div>
+    <div class="fc-model-note">Qué se ha dejado fuera y por qué: las visitas (sessions) no entran en el modelo porque son consecuencia de los anuncios y del posicionamiento orgánico, no una causa propia. El peso de cada factor mide cuánto pesa dentro de este modelo, no cuánta venta genera en euros.</div>
+  </div>
+
+  <div class="section-eyebrow" style="margin-top:4px;">Proyección del mes en curso</div>
+  <div class="fc-mtd-row">
+    <div class="fc-kpi-card"><div class="fc-kpi-label">Ventas reales hasta hoy</div><div class="fc-kpi-value" id="fcFrMtdActual"></div><div class="fc-kpi-sub" id="fcFrMtdActualSub"></div></div>
+    <div class="fc-kpi-card"><div class="fc-kpi-label">Proyección resto del mes (modelo)</div><div class="fc-kpi-value" id="fcFrMtdRemaining"></div><div class="fc-kpi-sub" id="fcFrMtdRemainingSub"></div></div>
+    <div class="fc-kpi-card"><div class="fc-kpi-label">Total proyectado del mes</div><div class="fc-kpi-value" id="fcFrMtdTotal"></div></div>
+    <div class="fc-kpi-card"><div class="fc-kpi-label">% de cumplimiento</div><div class="fc-kpi-value" id="fcFrMtdPct"></div><div class="fc-kpi-sub">Ventas reales sobre el total proyectado del mes</div></div>
+  </div>
+  <div class="card-desc" style="font-style:italic; margin-bottom:12px;">Cómo se calcula: ventas reales de los días ya transcurridos + la predicción del modelo (los mismos coeficientes de la sección de arriba, sin reentrenar) para los días que faltan del mes. Para esos días futuros, cada factor se asume igual a su media de los últimos 14 días reales. "Fin de semana" sí se calcula exacto por calendario.</div>
+  <div class="fc-chart-card">
+    <div class="daily-legend">
+      <span><i class="dot" style="background:var(--ink)"></i> Ventas reales</span>
+      <span><i class="dot" style="background:var(--accent)"></i> Modelo (línea continua = ajuste sobre días ya reales · discontinua = proyección resto de mes)</span>
+    </div>
+    <svg class="fc-chart-svg" id="fcFrChart" viewBox="0 0 900 300" style="width:100%; height:auto;"></svg>
+  </div>
+  <div class="fc-pace-row">
+    <div class="fc-pace-card"><div class="fc-pace-label">YoY Total</div><div class="fc-pace-figures"><span class="fc-pace-this" id="fcFrYoyTotalThis"></span><span class="fc-pace-last" id="fcFrYoyTotalLast"></span></div><span class="badge" id="fcFrYoyTotalBadge"></span></div>
+    <div class="fc-pace-card"><div class="fc-pace-label">YoY Orgánico</div><div class="fc-pace-figures"><span class="fc-pace-this" id="fcFrYoyOrganicThis"></span><span class="fc-pace-last" id="fcFrYoyOrganicLast"></span></div><span class="badge" id="fcFrYoyOrganicBadge"></span></div>
+    <div class="fc-pace-card"><div class="fc-pace-label">YoY Ads</div><div class="fc-pace-figures"><span class="fc-pace-this" id="fcFrYoyAdsThis"></span><span class="fc-pace-last" id="fcFrYoyAdsLast"></span></div><span class="badge" id="fcFrYoyAdsBadge"></span></div>
+  </div>
+  <div class="fc-ads-block">
+    <div><div class="fc-ads-hero-label">Presupuesto máximo recomendado (ROAS≥4)</div><div class="fc-ads-hero-value" id="fcFrBudget"></div></div>
+    <div><span style="font-size:14px; color:#ccc;">TACOS implícito: <b id="fcFrTacos" style="color:#fff;"></b></span> <span class="fc-tacos-badge" id="fcFrTacosBadge"></span></div>
+    <div class="fc-ads-grid">
+      <div class="fc-ads-cell">
+        <div class="fc-ads-cell-label">Gasto en ads real hasta hoy</div>
+        <div class="fc-ads-cell-value" id="fcFrAdsSpentMtd">—</div>
+        <div class="fc-ads-cell-sub" id="fcFrAdsSpentMtdSub"></div>
+      </div>
+      <div class="fc-ads-cell">
+        <div class="fc-ads-cell-label">Ritmo esperado a estas alturas</div>
+        <div class="fc-ads-cell-value" id="fcFrAdsPace">—</div>
+        <div class="fc-ads-cell-sub" id="fcFrAdsPaceSub"></div>
+      </div>
+      <div class="fc-ads-cell">
+        <div class="fc-ads-cell-label">% de cumplimiento del ritmo</div>
+        <div class="fc-ads-cell-value" id="fcFrAdsPacePct">—</div>
+        <div class="fc-ads-cell-sub" id="fcFrAdsPacePctSub"></div>
+      </div>
+      <div class="fc-ads-cell">
+        <div class="fc-ads-cell-label">Presupuesto restante del mes</div>
+        <div class="fc-ads-cell-value" id="fcFrAdsRemaining">—</div>
+        <div class="fc-ads-cell-sub" id="fcFrAdsRemainingSub"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="fc-tabpanel" id="fcPanelIt"><div class="fc-empty-state">Aún no hay modelo de forecast entrenado para Italia — próximamente.</div></div>
+<div class="fc-tabpanel" id="fcPanelDe"><div class="fc-empty-state">Aún no hay modelo de forecast entrenado para Alemania — próximamente.</div></div>
+</div><!-- /wrap Forecast -->
+</div><!-- /viewForecast -->
+
 
 <!-- ═══ TOAST (feedback visual, sustituye a alert() que los iframes de Artifacts bloquean) ═══ -->
 <div class="toast-wrap" id="toastWrap">
@@ -20369,13 +20381,15 @@ function switchView(view) {
   currentView = view;
   document.getElementById('viewVendor').classList.toggle('hidden', view !== 'vendor');
   document.getElementById('viewSeller').classList.toggle('hidden', view !== 'seller');
+  document.getElementById('viewForecast').classList.toggle('hidden', view !== 'forecast');
   document.getElementById('viewBtnVendor').classList.toggle('active', view === 'vendor');
   document.getElementById('viewBtnSeller').classList.toggle('active', view === 'seller');
-  document.getElementById('hdrTitle').textContent = view === 'vendor' ? 'Velamen Vendor' : 'Velamen UK Seller';
+  document.getElementById('viewBtnForecast').classList.toggle('active', view === 'forecast');
+  document.getElementById('hdrTitle').textContent = view === 'vendor' ? 'Velamen Vendor' : (view === 'seller' ? 'Velamen UK Seller' : 'Velamen Forecast');
   if (view === 'seller') {
     if (_ukDailyChartLastRange) ukRenderDailyChart(_ukDailyChartLastRange[0], _ukDailyChartLastRange[1]);
     if (_ukYtdChartLastToStr) ukRenderYtdChart(_ukYtdChartLastToStr);
-  } else if (_dailyChartLastRange) {
+  } else if (view === 'vendor' && _dailyChartLastRange) {
     renderDailyChart(_dailyChartLastRange[0], _dailyChartLastRange[1]);
   }
 }
