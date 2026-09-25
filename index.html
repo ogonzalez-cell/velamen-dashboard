@@ -13608,7 +13608,14 @@ function renderForecastEsChart(es) {
   var W = 900, H = 300, padL = 50, padR = 10, padT = 10, padB = 26;
   var plotW = W - padL - padR, plotH = H - padT - padB;
 
-  var actual = es.actual, predicted = es.daily_predictions;
+  var predicted = es.daily_predictions;
+  /* es.actual trae TODO el histórico (630+ días) para los cálculos de YoY/backtest,
+     pero este gráfico es "mes en curso + proyección resto de mes" -- si se pinta
+     el histórico entero, los ~5-6 días de proyección quedan como un pixel
+     invisible en el extremo derecho de un eje de 630+ días. Recortar a solo
+     el mes en curso (mismo mes que el primer día proyectado). */
+  var curMonth = (predicted.length ? predicted[0].date : es.actual[es.actual.length - 1].date).slice(0, 7);
+  var actual = es.actual.filter(function(r) { return r.date.slice(0, 7) === curMonth; });
   var allDates = actual.map(function(r) { return r.date; }).concat(predicted.map(function(r) { return r.date; }));
   var t0 = new Date(allDates[0] + 'T00:00:00'), tN = new Date(allDates[allDates.length - 1] + 'T00:00:00');
   var totalDays = Math.round((tN - t0) / 86400000) || 1;
