@@ -1448,7 +1448,69 @@ canvas.donut { display: block; }
     </div>
   </div>
 </div>
-<div class="fc-tabpanel" id="fcPanelDe"><div class="fc-empty-state">Aún no hay modelo de forecast entrenado para Alemania — próximamente.</div></div>
+<div class="fc-tabpanel" id="fcPanelDe">
+  <div id="fcDeReliabilityBanner" style="display:none; background:var(--warn-bg); color:var(--warn); border-radius:var(--radius); padding:12px 16px; margin-bottom:10px; font-size:14px;"></div>
+  <div class="fc-kpi-row">
+    <div class="fc-kpi-card"><div class="fc-kpi-label">R²</div><div class="fc-kpi-value" id="fcDeR2"></div></div>
+    <div class="fc-kpi-card"><div class="fc-kpi-label">Variables usadas</div><div class="fc-kpi-value" id="fcDeColumns" style="font-size:15px;"></div></div>
+    <div class="fc-kpi-card"><div class="fc-kpi-label">Observaciones</div><div class="fc-kpi-value" id="fcDeNobs"></div></div>
+  </div>
+  <div class="section-eyebrow" style="margin-top:14px;">Modelo predictivo</div>
+  <div class="fc-model-card">
+    <div class="fc-model-intro" id="fcDeModelIntro"></div>
+    <div id="fcDeFactorList"></div>
+    <div class="fc-model-note">Qué se ha dejado fuera y por qué: las visitas (sessions) no entran en el modelo porque son consecuencia de los anuncios y del posicionamiento orgánico, no una causa propia. El peso de cada factor mide cuánto pesa dentro de este modelo, no cuánta venta genera en euros.</div>
+  </div>
+
+  <div class="section-eyebrow" style="margin-top:4px;">Proyección del mes en curso</div>
+  <div class="fc-mtd-row">
+    <div class="fc-kpi-card"><div class="fc-kpi-label">Ventas reales hasta hoy</div><div class="fc-kpi-value" id="fcDeMtdActual"></div><div class="fc-kpi-sub" id="fcDeMtdActualSub"></div></div>
+    <div class="fc-kpi-card"><div class="fc-kpi-label">Proyección resto del mes (modelo)</div><div class="fc-kpi-value" id="fcDeMtdRemaining"></div><div class="fc-kpi-sub" id="fcDeMtdRemainingSub"></div></div>
+    <div class="fc-kpi-card"><div class="fc-kpi-label">Total proyectado del mes</div><div class="fc-kpi-value" id="fcDeMtdTotal"></div></div>
+    <div class="fc-kpi-card"><div class="fc-kpi-label">% de cumplimiento</div><div class="fc-kpi-value" id="fcDeMtdPct"></div><div class="fc-kpi-sub">Ventas reales sobre el total proyectado del mes</div></div>
+  </div>
+  <div class="card-desc" style="font-style:italic; margin-bottom:12px;">Cómo se calcula: ventas reales de los días ya transcurridos + la predicción del modelo (los mismos coeficientes de la sección de arriba, sin reentrenar) para los días que faltan del mes. Para esos días futuros, cada factor se asume igual a su media de los últimos 14 días reales. "Fin de semana" sí se calcula exacto por calendario.</div>
+  <div class="fc-chart-card">
+    <div class="daily-legend">
+      <span><i class="dot" style="background:var(--ink)"></i> Ventas reales</span>
+      <span><i class="dot" style="background:var(--accent)"></i> Modelo (línea continua = ajuste sobre días ya reales · discontinua = proyección resto de mes)</span>
+    </div>
+    <svg class="fc-chart-svg" id="fcDeChart" viewBox="0 0 900 300" style="width:100%; height:auto;"></svg>
+  </div>
+  <div class="fc-pace-row">
+    <div class="fc-pace-card"><div class="fc-pace-label">YoY Total</div><div class="fc-pace-figures"><span class="fc-pace-this" id="fcDeYoyTotalThis"></span><span class="fc-pace-last" id="fcDeYoyTotalLast"></span></div><span class="badge" id="fcDeYoyTotalBadge"></span></div>
+    <div class="fc-pace-card"><div class="fc-pace-label">YoY Orgánico</div><div class="fc-pace-figures"><span class="fc-pace-this" id="fcDeYoyOrganicThis"></span><span class="fc-pace-last" id="fcDeYoyOrganicLast"></span></div><span class="badge" id="fcDeYoyOrganicBadge"></span></div>
+    <div class="fc-pace-card"><div class="fc-pace-label">YoY Ads</div><div class="fc-pace-figures"><span class="fc-pace-this" id="fcDeYoyAdsThis"></span><span class="fc-pace-last" id="fcDeYoyAdsLast"></span></div><span class="badge" id="fcDeYoyAdsBadge"></span></div>
+  </div>
+  <div class="fc-ads-block">
+    <div><div class="fc-ads-hero-label">Presupuesto máximo recomendado (ROAS≥4)</div><div class="fc-ads-hero-value" id="fcDeBudget"></div></div>
+    <div><span style="font-size:14px; color:#ccc;">TACOS implícito: <b id="fcDeTacos" style="color:#fff;"></b></span> <span class="fc-tacos-badge" id="fcDeTacosBadge"></span></div>
+    <div id="fcDeAdsMismatchNote" style="display:none; font-size:12px; color:#ffd27a; line-height:1.4;"></div>
+    <div id="fcDeAdsMismatchNote" style="display:none; font-size:12px; color:#ffd27a; line-height:1.4;"></div>
+    <div class="fc-ads-grid">
+      <div class="fc-ads-cell">
+        <div class="fc-ads-cell-label">Gasto en ads real hasta hoy</div>
+        <div class="fc-ads-cell-value" id="fcDeAdsSpentMtd">—</div>
+        <div class="fc-ads-cell-sub" id="fcDeAdsSpentMtdSub"></div>
+      </div>
+      <div class="fc-ads-cell">
+        <div class="fc-ads-cell-label">Ritmo esperado a estas alturas</div>
+        <div class="fc-ads-cell-value" id="fcDeAdsPace">—</div>
+        <div class="fc-ads-cell-sub" id="fcDeAdsPaceSub"></div>
+      </div>
+      <div class="fc-ads-cell">
+        <div class="fc-ads-cell-label">% de cumplimiento del ritmo</div>
+        <div class="fc-ads-cell-value" id="fcDeAdsPacePct">—</div>
+        <div class="fc-ads-cell-sub" id="fcDeAdsPacePctSub"></div>
+      </div>
+      <div class="fc-ads-cell">
+        <div class="fc-ads-cell-label">Presupuesto restante del mes</div>
+        <div class="fc-ads-cell-value" id="fcDeAdsRemaining">—</div>
+        <div class="fc-ads-cell-sub" id="fcDeAdsRemainingSub"></div>
+      </div>
+    </div>
+  </div>
+</div>
 </div><!-- /wrap Forecast -->
 </div><!-- /viewForecast -->
 
@@ -18302,8 +18364,8 @@ const FORECAST_DATA_ES = {
   "it": {
     "fda_colchon": {
       "category": "fda_colchon",
-      "trained_at": "2026-09-30",
-      "r2": 0.04981444498750931,
+      "trained_at": "2026-10-01",
+      "r2": 0.044644438719029345,
       "columns_used": [
         "h10_search_volume",
         "ad_spend",
@@ -18313,7 +18375,7 @@ const FORECAST_DATA_ES = {
         "is_weekend"
       ],
       "n_obs": 636,
-      "reliability_warning": "Backtest walk-forward fuera de muestra: MAPE medio 28.8% (umbral 20%), sesgo medio -0.6% (umbral +/-15%). Resultados PRELIMINARES: no usar para decisiones de peso todavia.",
+      "reliability_warning": "Backtest walk-forward fuera de muestra: MAPE medio 28.7% (umbral 20%), sesgo medio -1.1% (umbral +/-15%). Resultados PRELIMINARES: no usar para decisiones de peso todavia.",
       "actual": [
         {
           "date": "2025-01-02",
@@ -21496,162 +21558,156 @@ const FORECAST_DATA_ES = {
           "ad_spend": 34.19
         }
       ],
-      "daily_predictions": [],
-      "model_fit_this_month": [
+      "daily_predictions": [
         {
-          "date": "2026-09-01",
-          "predicted": 312.5791157616021
+          "date": "2026-10-02",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-02",
-          "predicted": 346.0682249962182
+          "date": "2026-10-03",
+          "predicted_sales": 317.8405884474997
         },
         {
-          "date": "2026-09-03",
-          "predicted": 356.8384947322283
+          "date": "2026-10-04",
+          "predicted_sales": 317.8405884474997
         },
         {
-          "date": "2026-09-04",
-          "predicted": 356.8587464118879
+          "date": "2026-10-05",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-05",
-          "predicted": 348.58592527189853
+          "date": "2026-10-06",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-06",
-          "predicted": 348.24498269232777
+          "date": "2026-10-07",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-07",
-          "predicted": 356.0597094807601
+          "date": "2026-10-08",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-08",
-          "predicted": 355.75682588413764
+          "date": "2026-10-09",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-09",
-          "predicted": 354.4415169559885
+          "date": "2026-10-10",
+          "predicted_sales": 317.8405884474997
         },
         {
-          "date": "2026-09-10",
-          "predicted": 354.9268800528421
+          "date": "2026-10-11",
+          "predicted_sales": 317.8405884474997
         },
         {
-          "date": "2026-09-11",
-          "predicted": 355.736494043156
+          "date": "2026-10-12",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-12",
-          "predicted": 346.5012670493319
+          "date": "2026-10-13",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-13",
-          "predicted": 348.8452014341642
+          "date": "2026-10-14",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-14",
-          "predicted": 356.0658030006181
+          "date": "2026-10-15",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-15",
-          "predicted": 357.6080176511254
+          "date": "2026-10-16",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-16",
-          "predicted": 356.51711597514566
+          "date": "2026-10-17",
+          "predicted_sales": 317.8405884474997
         },
         {
-          "date": "2026-09-17",
-          "predicted": 355.69979277938114
+          "date": "2026-10-18",
+          "predicted_sales": 317.8405884474997
         },
         {
-          "date": "2026-09-18",
-          "predicted": 355.2136087416652
+          "date": "2026-10-19",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-19",
-          "predicted": 295.8840327360955
+          "date": "2026-10-20",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-20",
-          "predicted": 314.9454924845843
+          "date": "2026-10-21",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-21",
-          "predicted": 324.81151722827946
+          "date": "2026-10-22",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-22",
-          "predicted": 324.84211299439033
+          "date": "2026-10-23",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-23",
-          "predicted": 324.8770795842313
+          "date": "2026-10-24",
+          "predicted_sales": 317.8405884474997
         },
         {
-          "date": "2026-09-24",
-          "predicted": 324.03496754556124
+          "date": "2026-10-25",
+          "predicted_sales": 317.8405884474997
         },
         {
-          "date": "2026-09-25",
-          "predicted": 323.09961126731525
+          "date": "2026-10-26",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-26",
-          "predicted": 313.38510841293095
+          "date": "2026-10-27",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-27",
-          "predicted": 313.1199451066369
+          "date": "2026-10-28",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-28",
-          "predicted": 321.0074436418305
+          "date": "2026-10-29",
+          "predicted_sales": 326.4052926190118
         },
         {
-          "date": "2026-09-29",
-          "predicted": 320.94188128587865
+          "date": "2026-10-30",
+          "predicted_sales": 326.4052926190118
+        },
+        {
+          "date": "2026-10-31",
+          "predicted_sales": 317.8405884474997
         }
       ],
+      "model_fit_this_month": [],
       "yoy": {
-        "period_label": "01-30 sept",
+        "period_label": "01-01 oct",
         "this_year": {
-          "total": 10448.259999999998,
-          "organic": 5191.509999999998,
-          "ads": 5256.75
+          "total": 0.0,
+          "organic": 0.0,
+          "ads": 0.0
         },
         "last_year": {
-          "total": 14409.82,
-          "organic": 14409.82,
+          "total": 257.65,
+          "organic": 257.65,
           "ads": 0.0
         },
         "yoy_pct": {
-          "total": -0.274920852585251,
-          "organic": -0.6397241603295531,
+          "total": -1.0,
+          "organic": -1.0,
           "ads": null
         }
       },
       "ads_sales_ratio": 0.24181119304533524,
-      "projected_total_sales_month": 10448.259999999998,
-      "budget_max_month": 631.6265539619635,
+      "projected_total_sales_month": 9715.076441026744,
+      "budget_max_month": 587.3035561828266,
       "tacos_implicito": 0.06045279826133381,
       "tacos_alert": false,
       "factor_breakdown": [
         {
-          "name": "h10_search_volume",
-          "weight_pct": 33.16544812623238,
-          "direction": "negative",
-          "push_now": "down",
-          "vs_mean_pct": 124.72972875772332,
-          "label": "Volumen de búsqueda (Helium10)",
-          "source": "Helium10 (snapshot mensual, forward-filled)",
-          "caveat": null
-        },
-        {
           "name": "competitor_avg_price",
-          "weight_pct": 31.050107796912336,
+          "weight_pct": 34.20351742127741,
           "direction": "positive",
           "push_now": "up",
           "vs_mean_pct": 6.097609502475717,
@@ -21660,8 +21716,18 @@ const FORECAST_DATA_ES = {
           "caveat": null
         },
         {
+          "name": "ad_spend",
+          "weight_pct": 24.075732658300367,
+          "direction": "negative",
+          "push_now": "down",
+          "vs_mean_pct": 148.44558124099026,
+          "label": "Inversión en Ads",
+          "source": "Gasto diario en Ads de la cuenta (MerchantSpring)",
+          "caveat": "Esta relación negativa probablemente no significa que más inversión en Ads reduzca las ventas. Es más probable causalidad inversa: el gasto se mantiene o sube cuando la demanda ya está cayendo por otro motivo (ej. una caída orgánica), lo que produce esta correlación sin que Ads sea la causa. No usar este factor solo para decidir recortar presupuesto."
+        },
+        {
           "name": "avg_bsr",
-          "weight_pct": 16.2503529645808,
+          "weight_pct": 17.38683764737952,
           "direction": "negative",
           "push_now": "up",
           "vs_mean_pct": -47.02505220804135,
@@ -21671,7 +21737,7 @@ const FORECAST_DATA_ES = {
         },
         {
           "name": "avg_price",
-          "weight_pct": 9.22559470482765,
+          "weight_pct": 13.43546034936242,
           "direction": "negative",
           "push_now": "down",
           "vs_mean_pct": 16.58682847928967,
@@ -21681,7 +21747,7 @@ const FORECAST_DATA_ES = {
         },
         {
           "name": "is_weekend",
-          "weight_pct": 5.6631167697341676,
+          "weight_pct": 5.687408404896267,
           "direction": "negative",
           "push_now": "neutral",
           "vs_mean_pct": -0.1569858712715883,
@@ -21690,21 +21756,21 @@ const FORECAST_DATA_ES = {
           "caveat": null
         },
         {
-          "name": "ad_spend",
-          "weight_pct": 4.64537963771268,
-          "direction": "positive",
-          "push_now": "up",
-          "vs_mean_pct": 148.44558124099026,
-          "label": "Inversión en Ads",
-          "source": "Gasto diario en Ads de la cuenta (MerchantSpring)",
+          "name": "h10_search_volume",
+          "weight_pct": 5.211043518784014,
+          "direction": "negative",
+          "push_now": "down",
+          "vs_mean_pct": 49.308519719993164,
+          "label": "Volumen de búsqueda (Helium10)",
+          "source": "Helium10 (snapshot mensual, forward-filled)",
           "caveat": null
         }
       ]
     },
     "almohada": {
       "category": "almohada",
-      "trained_at": "2026-09-30",
-      "r2": 0.5047697586186961,
+      "trained_at": "2026-10-01",
+      "r2": 0.52510486727797,
       "columns_used": [
         "h10_search_volume",
         "ad_spend",
@@ -21714,7 +21780,7 @@ const FORECAST_DATA_ES = {
         "is_weekend"
       ],
       "n_obs": 636,
-      "reliability_warning": "Backtest walk-forward fuera de muestra: MAPE medio 55.7% (umbral 20%), sesgo medio -29.6% (umbral +/-15%). Resultados PRELIMINARES: no usar para decisiones de peso todavia.",
+      "reliability_warning": "Backtest walk-forward fuera de muestra: MAPE medio 64.4% (umbral 20%), sesgo medio -43.8% (umbral +/-15%). Resultados PRELIMINARES: no usar para decisiones de peso todavia.",
       "actual": [
         {
           "date": "2025-01-02",
@@ -24897,131 +24963,135 @@ const FORECAST_DATA_ES = {
           "ad_spend": 21.9
         }
       ],
-      "daily_predictions": [],
-      "model_fit_this_month": [
+      "daily_predictions": [
         {
-          "date": "2026-09-01",
-          "predicted": 63.13184177834265
+          "date": "2026-10-02",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-02",
-          "predicted": 58.496425143403485
+          "date": "2026-10-03",
+          "predicted_sales": 75.08289301384065
         },
         {
-          "date": "2026-09-03",
-          "predicted": 61.93140660800681
+          "date": "2026-10-04",
+          "predicted_sales": 75.08289301384065
         },
         {
-          "date": "2026-09-04",
-          "predicted": 58.978662517726875
+          "date": "2026-10-05",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-05",
-          "predicted": 54.258134905664235
+          "date": "2026-10-06",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-06",
-          "predicted": 56.30324759112382
+          "date": "2026-10-07",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-07",
-          "predicted": 58.22388607142315
+          "date": "2026-10-08",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-08",
-          "predicted": 55.696808169552256
+          "date": "2026-10-09",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-09",
-          "predicted": 54.75980359173761
+          "date": "2026-10-10",
+          "predicted_sales": 75.08289301384065
         },
         {
-          "date": "2026-09-10",
-          "predicted": 57.40857810935681
+          "date": "2026-10-11",
+          "predicted_sales": 75.08289301384065
         },
         {
-          "date": "2026-09-11",
-          "predicted": 59.81591087085893
+          "date": "2026-10-12",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-12",
-          "predicted": 52.35305578530205
+          "date": "2026-10-13",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-13",
-          "predicted": 48.02350727995555
+          "date": "2026-10-14",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-14",
-          "predicted": 53.926411432238325
+          "date": "2026-10-15",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-15",
-          "predicted": 52.60419680007601
+          "date": "2026-10-16",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-16",
-          "predicted": 52.51649811991831
+          "date": "2026-10-17",
+          "predicted_sales": 75.08289301384065
         },
         {
-          "date": "2026-09-17",
-          "predicted": 58.73506534121448
+          "date": "2026-10-18",
+          "predicted_sales": 75.08289301384065
         },
         {
-          "date": "2026-09-18",
-          "predicted": 56.926268177035226
+          "date": "2026-10-19",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-19",
-          "predicted": 52.03142715091792
+          "date": "2026-10-20",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-20",
-          "predicted": 52.50368218072113
+          "date": "2026-10-21",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-21",
-          "predicted": 60.829310463282155
+          "date": "2026-10-22",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-22",
-          "predicted": 63.98893471275369
+          "date": "2026-10-23",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-23",
-          "predicted": 65.88847071987645
+          "date": "2026-10-24",
+          "predicted_sales": 75.08289301384065
         },
         {
-          "date": "2026-09-24",
-          "predicted": 67.3554391214168
+          "date": "2026-10-25",
+          "predicted_sales": 75.08289301384065
         },
         {
-          "date": "2026-09-25",
-          "predicted": 67.87263951939576
+          "date": "2026-10-26",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-26",
-          "predicted": 63.35548689467987
+          "date": "2026-10-27",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-27",
-          "predicted": 63.02635936869325
+          "date": "2026-10-28",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-28",
-          "predicted": 65.47471040149327
+          "date": "2026-10-29",
+          "predicted_sales": 78.6400347108638
         },
         {
-          "date": "2026-09-29",
-          "predicted": 68.17355611458353
+          "date": "2026-10-30",
+          "predicted_sales": 78.6400347108638
+        },
+        {
+          "date": "2026-10-31",
+          "predicted_sales": 75.08289301384065
         }
       ],
+      "model_fit_this_month": [],
       "yoy": {
-        "period_label": "01-30 sept",
+        "period_label": "01-01 oct",
         "this_year": {
-          "total": 2951.83,
-          "organic": 1407.2300000000002,
-          "ads": 1544.5999999999997
+          "total": 0.0,
+          "organic": 0.0,
+          "ads": 0.0
         },
         "last_year": {
           "total": 0.0,
@@ -25035,24 +25105,14 @@ const FORECAST_DATA_ES = {
         }
       },
       "ads_sales_ratio": 0.6337885981927156,
-      "projected_total_sales_month": 2951.83,
-      "budget_max_month": 467.70904945080093,
+      "projected_total_sales_month": 2327.186766052706,
+      "budget_max_month": 368.73610954729594,
       "tacos_implicito": 0.1584471495481789,
       "tacos_alert": true,
       "factor_breakdown": [
         {
-          "name": "h10_search_volume",
-          "weight_pct": 37.80967495844893,
-          "direction": "positive",
-          "push_now": "up",
-          "vs_mean_pct": 124.72972875772332,
-          "label": "Volumen de búsqueda (Helium10)",
-          "source": "Helium10 (snapshot mensual, forward-filled)",
-          "caveat": null
-        },
-        {
           "name": "ad_spend",
-          "weight_pct": 20.299775952831194,
+          "weight_pct": 23.642783582926345,
           "direction": "positive",
           "push_now": "up",
           "vs_mean_pct": 235.44281860541162,
@@ -25062,7 +25122,7 @@ const FORECAST_DATA_ES = {
         },
         {
           "name": "avg_bsr",
-          "weight_pct": 15.702482084961828,
+          "weight_pct": 22.208239791622788,
           "direction": "negative",
           "push_now": "up",
           "vs_mean_pct": -96.88650018422067,
@@ -25071,8 +25131,18 @@ const FORECAST_DATA_ES = {
           "caveat": null
         },
         {
+          "name": "h10_search_volume",
+          "weight_pct": 20.890132241796625,
+          "direction": "positive",
+          "push_now": "up",
+          "vs_mean_pct": 11.916654773797628,
+          "label": "Volumen de búsqueda (Helium10)",
+          "source": "Helium10 (snapshot mensual, forward-filled)",
+          "caveat": null
+        },
+        {
           "name": "avg_price",
-          "weight_pct": 13.52821552654768,
+          "weight_pct": 20.760001587679607,
           "direction": "negative",
           "push_now": "up",
           "vs_mean_pct": -20.8241909246904,
@@ -25082,7 +25152,7 @@ const FORECAST_DATA_ES = {
         },
         {
           "name": "competitor_avg_price",
-          "weight_pct": 7.784780521846073,
+          "weight_pct": 8.738196667500077,
           "direction": "positive",
           "push_now": "up",
           "vs_mean_pct": 1.9611299711308614,
@@ -25092,12 +25162,3419 @@ const FORECAST_DATA_ES = {
         },
         {
           "name": "is_weekend",
-          "weight_pct": 4.875070955364295,
+          "weight_pct": 3.7606461284745714,
           "direction": "negative",
           "push_now": "neutral",
           "vs_mean_pct": -0.1569858712715883,
           "label": "Fin de semana",
           "source": "Calendario (exacto, no promediado)",
+          "caveat": null
+        }
+      ]
+    }
+  },
+  "de": {
+    "fda_colchon": {
+      "category": "fda_colchon",
+      "trained_at": "2026-10-01",
+      "r2": 0.08246118341113418,
+      "columns_used": [
+        "h10_search_volume",
+        "ad_spend",
+        "avg_bsr",
+        "avg_price",
+        "competitor_avg_price",
+        "is_weekend"
+      ],
+      "n_obs": 636,
+      "reliability_warning": "Backtest walk-forward fuera de muestra: MAPE medio 111.3% (umbral 20%), sesgo medio +81.4% (umbral +/-15%). Resultados PRELIMINARES: no usar para decisiones de peso todavia.",
+      "actual": [
+        {
+          "date": "2025-01-02",
+          "revenue": 272.42,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-03",
+          "revenue": 309.55,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-04",
+          "revenue": 196.51,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-05",
+          "revenue": 176.28,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-06",
+          "revenue": 161.71,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-07",
+          "revenue": 757.22,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-08",
+          "revenue": 158.46,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-09",
+          "revenue": 121.42,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-10",
+          "revenue": 264.11,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-11",
+          "revenue": 146.4,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-12",
+          "revenue": 148.45,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-13",
+          "revenue": 346.8,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-14",
+          "revenue": 310.0,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-15",
+          "revenue": 104.72,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-16",
+          "revenue": 307.58,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-17",
+          "revenue": 163.79,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-18",
+          "revenue": 216.84,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-19",
+          "revenue": 191.38,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-20",
+          "revenue": 119.74,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-21",
+          "revenue": 308.44,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-22",
+          "revenue": 275.64,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-23",
+          "revenue": 251.11,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-24",
+          "revenue": 245.8,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-25",
+          "revenue": 192.47,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-26",
+          "revenue": 280.38,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-27",
+          "revenue": 100.81,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-28",
+          "revenue": 331.12,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-29",
+          "revenue": 205.24,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-30",
+          "revenue": 161.19,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-01-31",
+          "revenue": 136.86,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-01",
+          "revenue": 207.91,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-02",
+          "revenue": 198.37,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-03",
+          "revenue": 44.95,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-04",
+          "revenue": 233.47,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-05",
+          "revenue": 723.69,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-06",
+          "revenue": 177.23,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-07",
+          "revenue": 246.52,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-08",
+          "revenue": 227.27,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-09",
+          "revenue": 344.56,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-10",
+          "revenue": 133.8,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-11",
+          "revenue": 246.41,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-12",
+          "revenue": 374.05,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-13",
+          "revenue": 454.96,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-14",
+          "revenue": 326.97,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-15",
+          "revenue": 170.08,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-16",
+          "revenue": 337.73,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-17",
+          "revenue": 303.17,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-18",
+          "revenue": 608.68,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-19",
+          "revenue": 339.49,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-20",
+          "revenue": 191.18,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-21",
+          "revenue": 216.87,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-22",
+          "revenue": 103.89,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-23",
+          "revenue": 239.85,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-24",
+          "revenue": 170.76,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-25",
+          "revenue": 329.41,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-26",
+          "revenue": 392.4,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-27",
+          "revenue": 399.89,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-02-28",
+          "revenue": 249.27,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-01",
+          "revenue": 319.22,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-02",
+          "revenue": 164.69,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-03",
+          "revenue": 340.58,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-04",
+          "revenue": 192.45,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-05",
+          "revenue": 548.76,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-06",
+          "revenue": 305.2,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-07",
+          "revenue": 210.56,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-08",
+          "revenue": 205.13,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-09",
+          "revenue": 343.18,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-10",
+          "revenue": 207.5,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-11",
+          "revenue": 226.83,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-12",
+          "revenue": 290.79,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-13",
+          "revenue": 425.03,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-14",
+          "revenue": 151.41,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-15",
+          "revenue": 327.58,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-16",
+          "revenue": 185.18,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-17",
+          "revenue": 223.86,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-18",
+          "revenue": 618.0,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-19",
+          "revenue": 249.5,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-20",
+          "revenue": 197.62,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-21",
+          "revenue": 121.52,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-22",
+          "revenue": 162.3,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-23",
+          "revenue": 286.53,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-24",
+          "revenue": 212.19,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-25",
+          "revenue": 169.29,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-26",
+          "revenue": 398.83,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-27",
+          "revenue": 348.68,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-28",
+          "revenue": 259.3,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-29",
+          "revenue": 122.55,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-30",
+          "revenue": 334.4,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-03-31",
+          "revenue": 212.14,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-01",
+          "revenue": 315.65,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-02",
+          "revenue": 97.52,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-03",
+          "revenue": 245.21,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-04",
+          "revenue": 52.5,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-05",
+          "revenue": 280.9,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-06",
+          "revenue": 608.03,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-07",
+          "revenue": 295.75,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-08",
+          "revenue": 310.66,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-09",
+          "revenue": 205.59,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-10",
+          "revenue": 275.09,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-11",
+          "revenue": 400.37,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-12",
+          "revenue": 228.31,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-13",
+          "revenue": 277.97,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-14",
+          "revenue": 143.52,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-15",
+          "revenue": 244.17,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-16",
+          "revenue": 575.31,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-17",
+          "revenue": 152.1,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-18",
+          "revenue": 144.81,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-19",
+          "revenue": 195.12,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-20",
+          "revenue": 83.96,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-21",
+          "revenue": 187.29,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-22",
+          "revenue": 460.59,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-23",
+          "revenue": 266.36,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-24",
+          "revenue": 182.0,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-25",
+          "revenue": 263.45,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-26",
+          "revenue": 314.36,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-27",
+          "revenue": 558.18,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-28",
+          "revenue": 479.16,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-29",
+          "revenue": 232.53,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-04-30",
+          "revenue": 343.37,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-01",
+          "revenue": 557.57,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-02",
+          "revenue": 164.27,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-03",
+          "revenue": 363.33,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-04",
+          "revenue": 148.75,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-05",
+          "revenue": 167.61,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-06",
+          "revenue": 371.99,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-07",
+          "revenue": 378.17,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-08",
+          "revenue": 220.84,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-09",
+          "revenue": 205.5,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-10",
+          "revenue": 205.9,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-11",
+          "revenue": 200.82,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-12",
+          "revenue": 303.4,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-13",
+          "revenue": 264.32,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-14",
+          "revenue": 260.16,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-15",
+          "revenue": 338.61,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-16",
+          "revenue": 253.09,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-17",
+          "revenue": 165.96,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-18",
+          "revenue": 213.69,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-19",
+          "revenue": 269.02,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-20",
+          "revenue": 220.73,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-21",
+          "revenue": 215.46,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-22",
+          "revenue": 269.28,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-23",
+          "revenue": 691.77,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-24",
+          "revenue": 107.16,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-25",
+          "revenue": 190.74,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-26",
+          "revenue": 295.34,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-27",
+          "revenue": 229.96,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-28",
+          "revenue": 175.17,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-29",
+          "revenue": 275.05,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-30",
+          "revenue": 183.73,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-05-31",
+          "revenue": 164.66,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-01",
+          "revenue": 245.31,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-02",
+          "revenue": 280.44,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-03",
+          "revenue": 302.0,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-04",
+          "revenue": 263.01,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-05",
+          "revenue": 295.65,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-06",
+          "revenue": 129.37,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-07",
+          "revenue": 229.36,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-08",
+          "revenue": 221.86,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-09",
+          "revenue": 152.83,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-10",
+          "revenue": 156.56,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-11",
+          "revenue": 239.69,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-12",
+          "revenue": 190.22,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-13",
+          "revenue": 210.71,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-14",
+          "revenue": 229.6,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-15",
+          "revenue": 209.97,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-16",
+          "revenue": 307.32,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-17",
+          "revenue": 224.93,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-18",
+          "revenue": 190.37,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-19",
+          "revenue": 270.42,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-20",
+          "revenue": 231.18,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-21",
+          "revenue": 41.16,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-22",
+          "revenue": 174.32,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-23",
+          "revenue": 124.99,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-24",
+          "revenue": 161.0,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-25",
+          "revenue": 202.66,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-26",
+          "revenue": 142.55,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-27",
+          "revenue": 175.56,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-28",
+          "revenue": 195.61,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-29",
+          "revenue": 204.12,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-06-30",
+          "revenue": 196.51,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-01",
+          "revenue": 217.62,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-02",
+          "revenue": 148.46,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-03",
+          "revenue": 251.58,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-04",
+          "revenue": 248.29,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-05",
+          "revenue": 159.21,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-06",
+          "revenue": 159.27,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-07",
+          "revenue": 135.02,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-08",
+          "revenue": 257.43,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-09",
+          "revenue": 309.34,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-10",
+          "revenue": 191.17,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-11",
+          "revenue": 418.55,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-12",
+          "revenue": 346.18,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-13",
+          "revenue": 337.5,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-14",
+          "revenue": 285.91,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-15",
+          "revenue": 272.2,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-16",
+          "revenue": 230.31,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-17",
+          "revenue": 273.16,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-18",
+          "revenue": 254.84,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-19",
+          "revenue": 132.59,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-20",
+          "revenue": 287.19,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-21",
+          "revenue": 359.16,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-22",
+          "revenue": 334.4,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-23",
+          "revenue": 320.44,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-24",
+          "revenue": 231.3,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-25",
+          "revenue": 250.13,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-26",
+          "revenue": 159.79,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-27",
+          "revenue": 370.46,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-28",
+          "revenue": 533.69,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-29",
+          "revenue": 198.66,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-30",
+          "revenue": 405.41,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-07-31",
+          "revenue": 228.75,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-01",
+          "revenue": 199.27,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-02",
+          "revenue": 409.61,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-03",
+          "revenue": 283.35,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-04",
+          "revenue": 269.03,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-05",
+          "revenue": 862.01,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-06",
+          "revenue": 283.35,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-07",
+          "revenue": 269.74,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-08",
+          "revenue": 413.49,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-09",
+          "revenue": 304.78,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-10",
+          "revenue": 337.91,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-11",
+          "revenue": 186.51,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-12",
+          "revenue": 356.07,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-13",
+          "revenue": 233.51,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-14",
+          "revenue": 228.11,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-15",
+          "revenue": 292.85,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-16",
+          "revenue": 73.11,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-17",
+          "revenue": 232.79,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-18",
+          "revenue": 324.72,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-19",
+          "revenue": 340.19,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-20",
+          "revenue": 300.83,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-21",
+          "revenue": 465.27,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-22",
+          "revenue": 311.92,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-23",
+          "revenue": 259.56,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-24",
+          "revenue": 202.91,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-25",
+          "revenue": 361.3,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-26",
+          "revenue": 573.91,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-27",
+          "revenue": 163.01,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-28",
+          "revenue": 342.19,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-29",
+          "revenue": 316.81,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-30",
+          "revenue": 199.16,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-08-31",
+          "revenue": 354.46,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-01",
+          "revenue": 729.66,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-02",
+          "revenue": 361.03,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-03",
+          "revenue": 456.42,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-04",
+          "revenue": 234.45,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-05",
+          "revenue": 270.25,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-06",
+          "revenue": 152.07,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-07",
+          "revenue": 163.0,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-08",
+          "revenue": 679.94,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-09",
+          "revenue": 283.54,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-10",
+          "revenue": 292.72,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-11",
+          "revenue": 324.04,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-12",
+          "revenue": 347.05,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-13",
+          "revenue": 197.59,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-14",
+          "revenue": 330.72,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-15",
+          "revenue": 257.51,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-16",
+          "revenue": 218.96,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-17",
+          "revenue": 551.87,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-18",
+          "revenue": 243.19,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-19",
+          "revenue": 175.98,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-20",
+          "revenue": 143.15,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-21",
+          "revenue": 463.86,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-22",
+          "revenue": 429.93,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-23",
+          "revenue": 268.34,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-24",
+          "revenue": 251.81,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-25",
+          "revenue": 207.4,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-26",
+          "revenue": 204.14,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-27",
+          "revenue": 227.57,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-28",
+          "revenue": 157.49,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-29",
+          "revenue": 267.76,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-09-30",
+          "revenue": 416.92,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-01",
+          "revenue": 368.04,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-02",
+          "revenue": 84.49,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-03",
+          "revenue": 134.35,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-04",
+          "revenue": 187.8,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-05",
+          "revenue": 376.18,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-06",
+          "revenue": 260.29,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-07",
+          "revenue": 302.51,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-08",
+          "revenue": 315.53,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-09",
+          "revenue": 174.67,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-10",
+          "revenue": 230.8,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-11",
+          "revenue": 338.66,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-12",
+          "revenue": 343.21,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-13",
+          "revenue": 140.38,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-14",
+          "revenue": 501.85,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-15",
+          "revenue": 470.44,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-16",
+          "revenue": 251.72,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-17",
+          "revenue": 679.05,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-18",
+          "revenue": 220.88,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-19",
+          "revenue": 287.79,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-20",
+          "revenue": 215.1,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-21",
+          "revenue": 270.23,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-22",
+          "revenue": 349.06,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-23",
+          "revenue": 277.26,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-24",
+          "revenue": 251.1,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-25",
+          "revenue": 115.71,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-26",
+          "revenue": 381.62,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-27",
+          "revenue": 203.05,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-28",
+          "revenue": 202.46,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-29",
+          "revenue": 241.23,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-30",
+          "revenue": 321.27,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-10-31",
+          "revenue": 197.55,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-11-01",
+          "revenue": 333.37,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-11-02",
+          "revenue": 269.13,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-11-03",
+          "revenue": 215.49,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-11-04",
+          "revenue": 295.62,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-11-05",
+          "revenue": 186.09,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-11-06",
+          "revenue": 194.99,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-11-07",
+          "revenue": 182.81,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-11-08",
+          "revenue": 18.48,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-11-09",
+          "revenue": 194.07,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2025-11-10",
+          "revenue": 490.19,
+          "ad_spend": 18.34
+        },
+        {
+          "date": "2025-11-11",
+          "revenue": 96.42,
+          "ad_spend": 13.61
+        },
+        {
+          "date": "2025-11-12",
+          "revenue": 102.9,
+          "ad_spend": 19.43
+        },
+        {
+          "date": "2025-11-13",
+          "revenue": 127.52,
+          "ad_spend": 13.08
+        },
+        {
+          "date": "2025-11-14",
+          "revenue": 131.15,
+          "ad_spend": 18.33
+        },
+        {
+          "date": "2025-11-15",
+          "revenue": 151.21,
+          "ad_spend": 17.45
+        },
+        {
+          "date": "2025-11-16",
+          "revenue": 166.14,
+          "ad_spend": 17.49
+        },
+        {
+          "date": "2025-11-17",
+          "revenue": 131.86,
+          "ad_spend": 16.34
+        },
+        {
+          "date": "2025-11-18",
+          "revenue": 134.75,
+          "ad_spend": 15.06
+        },
+        {
+          "date": "2025-11-19",
+          "revenue": 63.35,
+          "ad_spend": 14.62
+        },
+        {
+          "date": "2025-11-20",
+          "revenue": 201.07,
+          "ad_spend": 17.79
+        },
+        {
+          "date": "2025-11-21",
+          "revenue": 437.74,
+          "ad_spend": 15.95
+        },
+        {
+          "date": "2025-11-22",
+          "revenue": 104.06,
+          "ad_spend": 16.34
+        },
+        {
+          "date": "2025-11-23",
+          "revenue": 275.97,
+          "ad_spend": 18.8
+        },
+        {
+          "date": "2025-11-24",
+          "revenue": 82.76,
+          "ad_spend": 15.08
+        },
+        {
+          "date": "2025-11-25",
+          "revenue": 217.23,
+          "ad_spend": 13.96
+        },
+        {
+          "date": "2025-11-26",
+          "revenue": 191.1,
+          "ad_spend": 17.33
+        },
+        {
+          "date": "2025-11-27",
+          "revenue": 151.83,
+          "ad_spend": 15.78
+        },
+        {
+          "date": "2025-11-28",
+          "revenue": 154.15,
+          "ad_spend": 18.17
+        },
+        {
+          "date": "2025-11-29",
+          "revenue": 113.49,
+          "ad_spend": 16.47
+        },
+        {
+          "date": "2025-11-30",
+          "revenue": 136.52,
+          "ad_spend": 14.93
+        },
+        {
+          "date": "2025-12-01",
+          "revenue": 289.57,
+          "ad_spend": 20.55
+        },
+        {
+          "date": "2025-12-02",
+          "revenue": 312.58,
+          "ad_spend": 14.76
+        },
+        {
+          "date": "2025-12-03",
+          "revenue": 228.46,
+          "ad_spend": 16.84
+        },
+        {
+          "date": "2025-12-04",
+          "revenue": 348.71,
+          "ad_spend": 17.32
+        },
+        {
+          "date": "2025-12-05",
+          "revenue": 223.3,
+          "ad_spend": 13.81
+        },
+        {
+          "date": "2025-12-06",
+          "revenue": 166.54,
+          "ad_spend": 14.11
+        },
+        {
+          "date": "2025-12-07",
+          "revenue": 141.54,
+          "ad_spend": 16.05
+        },
+        {
+          "date": "2025-12-08",
+          "revenue": 170.14,
+          "ad_spend": 14.43
+        },
+        {
+          "date": "2025-12-09",
+          "revenue": 145.22,
+          "ad_spend": 16.65
+        },
+        {
+          "date": "2025-12-10",
+          "revenue": 460.2,
+          "ad_spend": 16.62
+        },
+        {
+          "date": "2025-12-11",
+          "revenue": 355.49,
+          "ad_spend": 11.63
+        },
+        {
+          "date": "2025-12-12",
+          "revenue": 99.97,
+          "ad_spend": 14.36
+        },
+        {
+          "date": "2025-12-13",
+          "revenue": 192.6,
+          "ad_spend": 16.22
+        },
+        {
+          "date": "2025-12-14",
+          "revenue": 154.98,
+          "ad_spend": 11.95
+        },
+        {
+          "date": "2025-12-15",
+          "revenue": 282.69,
+          "ad_spend": 13.75
+        },
+        {
+          "date": "2025-12-16",
+          "revenue": 117.73,
+          "ad_spend": 11.33
+        },
+        {
+          "date": "2025-12-17",
+          "revenue": 242.42,
+          "ad_spend": 16.24
+        },
+        {
+          "date": "2025-12-18",
+          "revenue": 234.53,
+          "ad_spend": 15.13
+        },
+        {
+          "date": "2025-12-19",
+          "revenue": 206.39,
+          "ad_spend": 10.75
+        },
+        {
+          "date": "2025-12-20",
+          "revenue": 181.92,
+          "ad_spend": 17.37
+        },
+        {
+          "date": "2025-12-21",
+          "revenue": 259.13,
+          "ad_spend": 14.14
+        },
+        {
+          "date": "2025-12-22",
+          "revenue": 141.5,
+          "ad_spend": 16.07
+        },
+        {
+          "date": "2025-12-23",
+          "revenue": 101.2,
+          "ad_spend": 13.2
+        },
+        {
+          "date": "2025-12-24",
+          "revenue": 18.07,
+          "ad_spend": 12.28
+        },
+        {
+          "date": "2025-12-25",
+          "revenue": 195.23,
+          "ad_spend": 14.83
+        },
+        {
+          "date": "2025-12-26",
+          "revenue": 138.29,
+          "ad_spend": 13.64
+        },
+        {
+          "date": "2025-12-27",
+          "revenue": 212.9,
+          "ad_spend": 18.3
+        },
+        {
+          "date": "2025-12-28",
+          "revenue": 181.92,
+          "ad_spend": 13.51
+        },
+        {
+          "date": "2025-12-29",
+          "revenue": 224.34,
+          "ad_spend": 13.52
+        },
+        {
+          "date": "2025-12-30",
+          "revenue": 257.29,
+          "ad_spend": 16.85
+        },
+        {
+          "date": "2025-12-31",
+          "revenue": 95.21,
+          "ad_spend": 14.77
+        },
+        {
+          "date": "2026-01-01",
+          "revenue": 222.01,
+          "ad_spend": 11.56
+        },
+        {
+          "date": "2026-01-02",
+          "revenue": 261.14,
+          "ad_spend": 17.04
+        },
+        {
+          "date": "2026-01-03",
+          "revenue": 306.06,
+          "ad_spend": 15.66
+        },
+        {
+          "date": "2026-01-04",
+          "revenue": 119.73,
+          "ad_spend": 16.93
+        },
+        {
+          "date": "2026-01-05",
+          "revenue": 280.79,
+          "ad_spend": 19.32
+        },
+        {
+          "date": "2026-01-06",
+          "revenue": 328.55,
+          "ad_spend": 18.74
+        },
+        {
+          "date": "2026-01-07",
+          "revenue": 554.05,
+          "ad_spend": 17.73
+        },
+        {
+          "date": "2026-01-08",
+          "revenue": 139.02,
+          "ad_spend": 20.36
+        },
+        {
+          "date": "2026-01-09",
+          "revenue": 188.49,
+          "ad_spend": 12.64
+        },
+        {
+          "date": "2026-01-10",
+          "revenue": 171.38,
+          "ad_spend": 15.6
+        },
+        {
+          "date": "2026-01-11",
+          "revenue": 191.99,
+          "ad_spend": 12.4
+        },
+        {
+          "date": "2026-01-12",
+          "revenue": 188.6,
+          "ad_spend": 14.66
+        },
+        {
+          "date": "2026-01-13",
+          "revenue": 116.37,
+          "ad_spend": 15.24
+        },
+        {
+          "date": "2026-01-14",
+          "revenue": 261.71,
+          "ad_spend": 16.94
+        },
+        {
+          "date": "2026-01-15",
+          "revenue": 164.68,
+          "ad_spend": 12.18
+        },
+        {
+          "date": "2026-01-16",
+          "revenue": 231.79,
+          "ad_spend": 17.61
+        },
+        {
+          "date": "2026-01-17",
+          "revenue": 239.9,
+          "ad_spend": 17.65
+        },
+        {
+          "date": "2026-01-18",
+          "revenue": 197.01,
+          "ad_spend": 16.33
+        },
+        {
+          "date": "2026-01-19",
+          "revenue": 205.46,
+          "ad_spend": 14.52
+        },
+        {
+          "date": "2026-01-20",
+          "revenue": 391.47,
+          "ad_spend": 13.52
+        },
+        {
+          "date": "2026-01-21",
+          "revenue": 721.7,
+          "ad_spend": 17.69
+        },
+        {
+          "date": "2026-01-22",
+          "revenue": 636.94,
+          "ad_spend": 24.26
+        },
+        {
+          "date": "2026-01-23",
+          "revenue": 221.64,
+          "ad_spend": 30.52
+        },
+        {
+          "date": "2026-01-24",
+          "revenue": 269.72,
+          "ad_spend": 26.76
+        },
+        {
+          "date": "2026-01-25",
+          "revenue": 178.51,
+          "ad_spend": 35.36
+        },
+        {
+          "date": "2026-01-26",
+          "revenue": 273.88,
+          "ad_spend": 32.1
+        },
+        {
+          "date": "2026-01-27",
+          "revenue": 161.3,
+          "ad_spend": 32.71
+        },
+        {
+          "date": "2026-01-28",
+          "revenue": 147.0,
+          "ad_spend": 51.6
+        },
+        {
+          "date": "2026-01-29",
+          "revenue": 271.12,
+          "ad_spend": 72.47
+        },
+        {
+          "date": "2026-01-30",
+          "revenue": 271.73,
+          "ad_spend": 62.24
+        },
+        {
+          "date": "2026-01-31",
+          "revenue": 154.12,
+          "ad_spend": 63.74
+        },
+        {
+          "date": "2026-02-01",
+          "revenue": 311.19,
+          "ad_spend": 71.12
+        },
+        {
+          "date": "2026-02-02",
+          "revenue": 259.41,
+          "ad_spend": 61.26
+        },
+        {
+          "date": "2026-02-03",
+          "revenue": 157.1,
+          "ad_spend": 50.87
+        },
+        {
+          "date": "2026-02-04",
+          "revenue": 269.97,
+          "ad_spend": 52.38
+        },
+        {
+          "date": "2026-02-05",
+          "revenue": 55.88,
+          "ad_spend": 52.98
+        },
+        {
+          "date": "2026-02-06",
+          "revenue": 406.74,
+          "ad_spend": 56.41
+        },
+        {
+          "date": "2026-02-07",
+          "revenue": 270.72,
+          "ad_spend": 53.74
+        },
+        {
+          "date": "2026-02-08",
+          "revenue": 301.2,
+          "ad_spend": 63.48
+        },
+        {
+          "date": "2026-02-09",
+          "revenue": 327.89,
+          "ad_spend": 39.67
+        },
+        {
+          "date": "2026-02-10",
+          "revenue": 195.49,
+          "ad_spend": 49.12
+        },
+        {
+          "date": "2026-02-11",
+          "revenue": 203.79,
+          "ad_spend": 48.15
+        },
+        {
+          "date": "2026-02-12",
+          "revenue": 238.62,
+          "ad_spend": 73.84
+        },
+        {
+          "date": "2026-02-13",
+          "revenue": 323.78,
+          "ad_spend": 62.09
+        },
+        {
+          "date": "2026-02-14",
+          "revenue": 158.82,
+          "ad_spend": 60.91
+        },
+        {
+          "date": "2026-02-15",
+          "revenue": 287.34,
+          "ad_spend": 70.17
+        },
+        {
+          "date": "2026-02-16",
+          "revenue": 191.98,
+          "ad_spend": 47.32
+        },
+        {
+          "date": "2026-02-17",
+          "revenue": 255.85,
+          "ad_spend": 24.28
+        },
+        {
+          "date": "2026-02-18",
+          "revenue": 187.17,
+          "ad_spend": 19.4
+        },
+        {
+          "date": "2026-02-19",
+          "revenue": 134.67,
+          "ad_spend": 19.11
+        },
+        {
+          "date": "2026-02-20",
+          "revenue": 292.98,
+          "ad_spend": 24.21
+        },
+        {
+          "date": "2026-02-21",
+          "revenue": 595.91,
+          "ad_spend": 32.62
+        },
+        {
+          "date": "2026-02-22",
+          "revenue": 205.74,
+          "ad_spend": 11.23
+        },
+        {
+          "date": "2026-02-23",
+          "revenue": 155.85,
+          "ad_spend": 20.13
+        },
+        {
+          "date": "2026-02-24",
+          "revenue": 123.5,
+          "ad_spend": 25.11
+        },
+        {
+          "date": "2026-02-25",
+          "revenue": 134.67,
+          "ad_spend": 9.17
+        },
+        {
+          "date": "2026-02-26",
+          "revenue": 108.4,
+          "ad_spend": 14.41
+        },
+        {
+          "date": "2026-02-27",
+          "revenue": -31.2,
+          "ad_spend": 10.19
+        },
+        {
+          "date": "2026-02-28",
+          "revenue": 160.2,
+          "ad_spend": 16.93
+        },
+        {
+          "date": "2026-03-01",
+          "revenue": 83.45,
+          "ad_spend": 18.4
+        },
+        {
+          "date": "2026-03-02",
+          "revenue": 164.21,
+          "ad_spend": 20.83
+        },
+        {
+          "date": "2026-03-03",
+          "revenue": 417.55,
+          "ad_spend": 20.05
+        },
+        {
+          "date": "2026-03-04",
+          "revenue": 122.15,
+          "ad_spend": 13.69
+        },
+        {
+          "date": "2026-03-05",
+          "revenue": 252.29,
+          "ad_spend": 11.39
+        },
+        {
+          "date": "2026-03-06",
+          "revenue": 167.83,
+          "ad_spend": 16.76
+        },
+        {
+          "date": "2026-03-07",
+          "revenue": 220.14,
+          "ad_spend": 18.07
+        },
+        {
+          "date": "2026-03-08",
+          "revenue": 295.02,
+          "ad_spend": 40.63
+        },
+        {
+          "date": "2026-03-09",
+          "revenue": 229.52,
+          "ad_spend": 23.64
+        },
+        {
+          "date": "2026-03-10",
+          "revenue": 174.48,
+          "ad_spend": 20.14
+        },
+        {
+          "date": "2026-03-11",
+          "revenue": 195.15,
+          "ad_spend": 19.12
+        },
+        {
+          "date": "2026-03-12",
+          "revenue": 92.42,
+          "ad_spend": 17.87
+        },
+        {
+          "date": "2026-03-13",
+          "revenue": 128.57,
+          "ad_spend": 15.04
+        },
+        {
+          "date": "2026-03-14",
+          "revenue": 325.47,
+          "ad_spend": 20.6
+        },
+        {
+          "date": "2026-03-15",
+          "revenue": 202.48,
+          "ad_spend": 20.8
+        },
+        {
+          "date": "2026-03-16",
+          "revenue": 113.01,
+          "ad_spend": 19.73
+        },
+        {
+          "date": "2026-03-17",
+          "revenue": 516.06,
+          "ad_spend": 15.87
+        },
+        {
+          "date": "2026-03-18",
+          "revenue": 265.1,
+          "ad_spend": 16.04
+        },
+        {
+          "date": "2026-03-19",
+          "revenue": 234.78,
+          "ad_spend": 9.95
+        },
+        {
+          "date": "2026-03-20",
+          "revenue": 105.04,
+          "ad_spend": 11.4
+        },
+        {
+          "date": "2026-03-21",
+          "revenue": 180.34,
+          "ad_spend": 20.18
+        },
+        {
+          "date": "2026-03-22",
+          "revenue": 230.54,
+          "ad_spend": 20.22
+        },
+        {
+          "date": "2026-03-23",
+          "revenue": 208.16,
+          "ad_spend": 9.52
+        },
+        {
+          "date": "2026-03-24",
+          "revenue": 279.41,
+          "ad_spend": 11.61
+        },
+        {
+          "date": "2026-03-25",
+          "revenue": 67.44,
+          "ad_spend": 9.91
+        },
+        {
+          "date": "2026-03-26",
+          "revenue": 44.55,
+          "ad_spend": 7.53
+        },
+        {
+          "date": "2026-03-27",
+          "revenue": 172.75,
+          "ad_spend": 11.77
+        },
+        {
+          "date": "2026-03-28",
+          "revenue": 161.24,
+          "ad_spend": 11.78
+        },
+        {
+          "date": "2026-03-29",
+          "revenue": 187.56,
+          "ad_spend": 1.8
+        },
+        {
+          "date": "2026-03-30",
+          "revenue": 189.58,
+          "ad_spend": 2.29
+        },
+        {
+          "date": "2026-03-31",
+          "revenue": 241.83,
+          "ad_spend": 5.53
+        },
+        {
+          "date": "2026-04-01",
+          "revenue": 129.71,
+          "ad_spend": 10.37
+        },
+        {
+          "date": "2026-04-02",
+          "revenue": 348.15,
+          "ad_spend": 11.55
+        },
+        {
+          "date": "2026-04-03",
+          "revenue": 122.23,
+          "ad_spend": 12.23
+        },
+        {
+          "date": "2026-04-04",
+          "revenue": 118.88,
+          "ad_spend": 4.32
+        },
+        {
+          "date": "2026-04-05",
+          "revenue": 85.1,
+          "ad_spend": 7.42
+        },
+        {
+          "date": "2026-04-06",
+          "revenue": -38.64,
+          "ad_spend": 12.77
+        },
+        {
+          "date": "2026-04-07",
+          "revenue": 210.85,
+          "ad_spend": 9.3
+        },
+        {
+          "date": "2026-04-08",
+          "revenue": 95.97,
+          "ad_spend": 6.36
+        },
+        {
+          "date": "2026-04-09",
+          "revenue": 1109.76,
+          "ad_spend": 5.78
+        },
+        {
+          "date": "2026-04-10",
+          "revenue": 146.35,
+          "ad_spend": 15.67
+        },
+        {
+          "date": "2026-04-11",
+          "revenue": 144.09,
+          "ad_spend": 9.68
+        },
+        {
+          "date": "2026-04-12",
+          "revenue": 74.76,
+          "ad_spend": 8.29
+        },
+        {
+          "date": "2026-04-13",
+          "revenue": 165.94,
+          "ad_spend": 11.81
+        },
+        {
+          "date": "2026-04-14",
+          "revenue": 59.22,
+          "ad_spend": 9.44
+        },
+        {
+          "date": "2026-04-15",
+          "revenue": 150.96,
+          "ad_spend": 6.06
+        },
+        {
+          "date": "2026-04-16",
+          "revenue": 160.4,
+          "ad_spend": 4.33
+        },
+        {
+          "date": "2026-04-17",
+          "revenue": 173.68,
+          "ad_spend": 3.06
+        },
+        {
+          "date": "2026-04-18",
+          "revenue": 110.03,
+          "ad_spend": 3.01
+        },
+        {
+          "date": "2026-04-19",
+          "revenue": 163.4,
+          "ad_spend": 5.82
+        },
+        {
+          "date": "2026-04-20",
+          "revenue": 156.63,
+          "ad_spend": 6.54
+        },
+        {
+          "date": "2026-04-21",
+          "revenue": 86.13,
+          "ad_spend": 9.27
+        },
+        {
+          "date": "2026-04-22",
+          "revenue": 304.2,
+          "ad_spend": 6.28
+        },
+        {
+          "date": "2026-04-23",
+          "revenue": 127.77,
+          "ad_spend": 10.89
+        },
+        {
+          "date": "2026-04-24",
+          "revenue": 10.08,
+          "ad_spend": 6.95
+        },
+        {
+          "date": "2026-04-25",
+          "revenue": 58.45,
+          "ad_spend": 3.5
+        },
+        {
+          "date": "2026-04-26",
+          "revenue": 117.65,
+          "ad_spend": 9.56
+        },
+        {
+          "date": "2026-04-27",
+          "revenue": 174.36,
+          "ad_spend": 8.56
+        },
+        {
+          "date": "2026-04-28",
+          "revenue": 170.51,
+          "ad_spend": 9.35
+        },
+        {
+          "date": "2026-04-29",
+          "revenue": 181.45,
+          "ad_spend": 7.16
+        },
+        {
+          "date": "2026-04-30",
+          "revenue": 105.42,
+          "ad_spend": 5.09
+        },
+        {
+          "date": "2026-05-01",
+          "revenue": 51.91,
+          "ad_spend": 10.75
+        },
+        {
+          "date": "2026-05-02",
+          "revenue": 133.51,
+          "ad_spend": 4.9
+        },
+        {
+          "date": "2026-05-03",
+          "revenue": 133.19,
+          "ad_spend": 7.34
+        },
+        {
+          "date": "2026-05-04",
+          "revenue": 104.04,
+          "ad_spend": 5.78
+        },
+        {
+          "date": "2026-05-05",
+          "revenue": 141.2,
+          "ad_spend": 10.28
+        },
+        {
+          "date": "2026-05-06",
+          "revenue": 113.82,
+          "ad_spend": 8.86
+        },
+        {
+          "date": "2026-05-07",
+          "revenue": 105.88,
+          "ad_spend": 7.72
+        },
+        {
+          "date": "2026-05-08",
+          "revenue": 151.64,
+          "ad_spend": 4.53
+        },
+        {
+          "date": "2026-05-09",
+          "revenue": 102.76,
+          "ad_spend": 4.63
+        },
+        {
+          "date": "2026-05-10",
+          "revenue": 170.88,
+          "ad_spend": 11.31
+        },
+        {
+          "date": "2026-05-11",
+          "revenue": 102.97,
+          "ad_spend": 6.42
+        },
+        {
+          "date": "2026-05-12",
+          "revenue": 142.95,
+          "ad_spend": 12.84
+        },
+        {
+          "date": "2026-05-13",
+          "revenue": 46.11,
+          "ad_spend": 9.44
+        },
+        {
+          "date": "2026-05-14",
+          "revenue": 150.79,
+          "ad_spend": 13.63
+        },
+        {
+          "date": "2026-05-15",
+          "revenue": 157.91,
+          "ad_spend": 14.66
+        },
+        {
+          "date": "2026-05-16",
+          "revenue": 82.75,
+          "ad_spend": 15.57
+        },
+        {
+          "date": "2026-05-17",
+          "revenue": 72.96,
+          "ad_spend": 11.25
+        },
+        {
+          "date": "2026-05-18",
+          "revenue": 166.79,
+          "ad_spend": 11.89
+        },
+        {
+          "date": "2026-05-19",
+          "revenue": 223.52,
+          "ad_spend": 23.5
+        },
+        {
+          "date": "2026-05-20",
+          "revenue": 123.04,
+          "ad_spend": 29.57
+        },
+        {
+          "date": "2026-05-21",
+          "revenue": 303.23,
+          "ad_spend": 19.84
+        },
+        {
+          "date": "2026-05-22",
+          "revenue": 35.28,
+          "ad_spend": 26.1
+        },
+        {
+          "date": "2026-05-23",
+          "revenue": 176.77,
+          "ad_spend": 21.47
+        },
+        {
+          "date": "2026-05-24",
+          "revenue": 150.71,
+          "ad_spend": 22.06
+        },
+        {
+          "date": "2026-05-25",
+          "revenue": 121.21,
+          "ad_spend": 20.75
+        },
+        {
+          "date": "2026-05-26",
+          "revenue": 310.09,
+          "ad_spend": 24.37
+        },
+        {
+          "date": "2026-05-27",
+          "revenue": 259.98,
+          "ad_spend": 22.66
+        },
+        {
+          "date": "2026-05-28",
+          "revenue": 160.03,
+          "ad_spend": 16.0
+        },
+        {
+          "date": "2026-05-29",
+          "revenue": 97.65,
+          "ad_spend": 17.49
+        },
+        {
+          "date": "2026-05-30",
+          "revenue": 19.32,
+          "ad_spend": 19.84
+        },
+        {
+          "date": "2026-05-31",
+          "revenue": 0.0,
+          "ad_spend": 23.45
+        },
+        {
+          "date": "2026-06-01",
+          "revenue": 60.9,
+          "ad_spend": 21.08
+        },
+        {
+          "date": "2026-06-02",
+          "revenue": 143.05,
+          "ad_spend": 19.96
+        },
+        {
+          "date": "2026-06-03",
+          "revenue": 250.36,
+          "ad_spend": 25.69
+        },
+        {
+          "date": "2026-06-04",
+          "revenue": 184.13,
+          "ad_spend": 20.81
+        },
+        {
+          "date": "2026-06-05",
+          "revenue": 202.58,
+          "ad_spend": 31.89
+        },
+        {
+          "date": "2026-06-06",
+          "revenue": 97.4,
+          "ad_spend": 22.82
+        },
+        {
+          "date": "2026-06-07",
+          "revenue": 170.44,
+          "ad_spend": 38.83
+        },
+        {
+          "date": "2026-06-08",
+          "revenue": 129.79,
+          "ad_spend": 22.74
+        },
+        {
+          "date": "2026-06-09",
+          "revenue": 134.07,
+          "ad_spend": 18.55
+        },
+        {
+          "date": "2026-06-10",
+          "revenue": 121.05,
+          "ad_spend": 24.03
+        },
+        {
+          "date": "2026-06-11",
+          "revenue": 102.46,
+          "ad_spend": 25.67
+        },
+        {
+          "date": "2026-06-12",
+          "revenue": 130.15,
+          "ad_spend": 31.13
+        },
+        {
+          "date": "2026-06-13",
+          "revenue": 87.65,
+          "ad_spend": 22.8
+        },
+        {
+          "date": "2026-06-14",
+          "revenue": 148.19,
+          "ad_spend": 34.76
+        },
+        {
+          "date": "2026-06-15",
+          "revenue": 181.56,
+          "ad_spend": 29.57
+        },
+        {
+          "date": "2026-06-16",
+          "revenue": 82.83,
+          "ad_spend": 22.24
+        },
+        {
+          "date": "2026-06-17",
+          "revenue": 243.23,
+          "ad_spend": 28.98
+        },
+        {
+          "date": "2026-06-18",
+          "revenue": 148.57,
+          "ad_spend": 25.71
+        },
+        {
+          "date": "2026-06-19",
+          "revenue": 81.48,
+          "ad_spend": 26.72
+        },
+        {
+          "date": "2026-06-20",
+          "revenue": 219.25,
+          "ad_spend": 22.47
+        },
+        {
+          "date": "2026-06-21",
+          "revenue": 162.73,
+          "ad_spend": 34.6
+        },
+        {
+          "date": "2026-06-22",
+          "revenue": 93.42,
+          "ad_spend": 34.64
+        },
+        {
+          "date": "2026-06-23",
+          "revenue": 619.14,
+          "ad_spend": 40.76
+        },
+        {
+          "date": "2026-06-24",
+          "revenue": 178.11,
+          "ad_spend": 42.96
+        },
+        {
+          "date": "2026-06-25",
+          "revenue": 99.33,
+          "ad_spend": 30.46
+        },
+        {
+          "date": "2026-06-26",
+          "revenue": 116.48,
+          "ad_spend": 22.72
+        },
+        {
+          "date": "2026-06-27",
+          "revenue": 149.37,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2026-06-28",
+          "revenue": 89.66,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2026-06-29",
+          "revenue": 111.35,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2026-06-30",
+          "revenue": 268.38,
+          "ad_spend": 13.1
+        },
+        {
+          "date": "2026-07-01",
+          "revenue": 247.37,
+          "ad_spend": 39.19
+        },
+        {
+          "date": "2026-07-02",
+          "revenue": 124.5,
+          "ad_spend": 35.24
+        },
+        {
+          "date": "2026-07-03",
+          "revenue": 120.69,
+          "ad_spend": 39.67
+        },
+        {
+          "date": "2026-07-04",
+          "revenue": 154.71,
+          "ad_spend": 39.14
+        },
+        {
+          "date": "2026-07-05",
+          "revenue": 225.54,
+          "ad_spend": 49.29
+        },
+        {
+          "date": "2026-07-06",
+          "revenue": 148.75,
+          "ad_spend": 41.7
+        },
+        {
+          "date": "2026-07-07",
+          "revenue": 131.53,
+          "ad_spend": 32.43
+        },
+        {
+          "date": "2026-07-08",
+          "revenue": 265.5,
+          "ad_spend": 20.03
+        },
+        {
+          "date": "2026-07-09",
+          "revenue": 262.55,
+          "ad_spend": 27.69
+        },
+        {
+          "date": "2026-07-10",
+          "revenue": 310.26,
+          "ad_spend": 34.77
+        },
+        {
+          "date": "2026-07-11",
+          "revenue": 125.58,
+          "ad_spend": 27.84
+        },
+        {
+          "date": "2026-07-12",
+          "revenue": 157.93,
+          "ad_spend": 37.33
+        },
+        {
+          "date": "2026-07-13",
+          "revenue": 246.34,
+          "ad_spend": 33.97
+        },
+        {
+          "date": "2026-07-14",
+          "revenue": 290.18,
+          "ad_spend": 42.28
+        },
+        {
+          "date": "2026-07-15",
+          "revenue": 205.69,
+          "ad_spend": 36.26
+        },
+        {
+          "date": "2026-07-16",
+          "revenue": 223.89,
+          "ad_spend": 25.05
+        },
+        {
+          "date": "2026-07-17",
+          "revenue": 182.53,
+          "ad_spend": 32.87
+        },
+        {
+          "date": "2026-07-18",
+          "revenue": 193.52,
+          "ad_spend": 38.12
+        },
+        {
+          "date": "2026-07-19",
+          "revenue": 148.64,
+          "ad_spend": 48.56
+        },
+        {
+          "date": "2026-07-20",
+          "revenue": 150.36,
+          "ad_spend": 22.93
+        },
+        {
+          "date": "2026-07-21",
+          "revenue": 135.03,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2026-07-22",
+          "revenue": 68.67,
+          "ad_spend": 0.0
+        },
+        {
+          "date": "2026-07-23",
+          "revenue": 133.36,
+          "ad_spend": 29.61
+        },
+        {
+          "date": "2026-07-24",
+          "revenue": 118.78,
+          "ad_spend": 29.82
+        },
+        {
+          "date": "2026-07-25",
+          "revenue": 135.23,
+          "ad_spend": 35.1
+        },
+        {
+          "date": "2026-07-26",
+          "revenue": 272.86,
+          "ad_spend": 43.46
+        },
+        {
+          "date": "2026-07-27",
+          "revenue": 342.78,
+          "ad_spend": 56.21
+        },
+        {
+          "date": "2026-07-28",
+          "revenue": 173.36,
+          "ad_spend": 37.07
+        },
+        {
+          "date": "2026-07-29",
+          "revenue": 291.91,
+          "ad_spend": 37.98
+        },
+        {
+          "date": "2026-07-30",
+          "revenue": 251.02,
+          "ad_spend": 31.6
+        },
+        {
+          "date": "2026-07-31",
+          "revenue": 177.26,
+          "ad_spend": 32.54
+        },
+        {
+          "date": "2026-08-01",
+          "revenue": 192.48,
+          "ad_spend": 41.08
+        },
+        {
+          "date": "2026-08-02",
+          "revenue": 317.05,
+          "ad_spend": 59.36
+        },
+        {
+          "date": "2026-08-03",
+          "revenue": 145.16,
+          "ad_spend": 51.64
+        },
+        {
+          "date": "2026-08-04",
+          "revenue": 144.11,
+          "ad_spend": 37.77
+        },
+        {
+          "date": "2026-08-05",
+          "revenue": 241.07,
+          "ad_spend": 41.6
+        },
+        {
+          "date": "2026-08-06",
+          "revenue": 76.13,
+          "ad_spend": 31.48
+        },
+        {
+          "date": "2026-08-07",
+          "revenue": 181.07,
+          "ad_spend": 43.4
+        },
+        {
+          "date": "2026-08-08",
+          "revenue": 124.31,
+          "ad_spend": 36.44
+        },
+        {
+          "date": "2026-08-09",
+          "revenue": 228.8,
+          "ad_spend": 50.63
+        },
+        {
+          "date": "2026-08-10",
+          "revenue": 187.33,
+          "ad_spend": 40.8
+        },
+        {
+          "date": "2026-08-11",
+          "revenue": 213.81,
+          "ad_spend": 49.02
+        },
+        {
+          "date": "2026-08-12",
+          "revenue": 167.18,
+          "ad_spend": 30.06
+        },
+        {
+          "date": "2026-08-13",
+          "revenue": 130.14,
+          "ad_spend": 26.06
+        },
+        {
+          "date": "2026-08-14",
+          "revenue": 239.48,
+          "ad_spend": 47.41
+        },
+        {
+          "date": "2026-08-15",
+          "revenue": 130.88,
+          "ad_spend": 43.05
+        },
+        {
+          "date": "2026-08-16",
+          "revenue": 237.52,
+          "ad_spend": 57.72
+        },
+        {
+          "date": "2026-08-17",
+          "revenue": 278.95,
+          "ad_spend": 50.88
+        },
+        {
+          "date": "2026-08-18",
+          "revenue": 382.5,
+          "ad_spend": 66.45
+        },
+        {
+          "date": "2026-08-19",
+          "revenue": 272.96,
+          "ad_spend": 54.42
+        },
+        {
+          "date": "2026-08-20",
+          "revenue": 292.23,
+          "ad_spend": 45.83
+        },
+        {
+          "date": "2026-08-21",
+          "revenue": 323.65,
+          "ad_spend": 55.74
+        },
+        {
+          "date": "2026-08-22",
+          "revenue": 105.4,
+          "ad_spend": 42.84
+        },
+        {
+          "date": "2026-08-23",
+          "revenue": 230.26,
+          "ad_spend": 51.28
+        },
+        {
+          "date": "2026-08-24",
+          "revenue": 231.72,
+          "ad_spend": 46.29
+        },
+        {
+          "date": "2026-08-25",
+          "revenue": 373.88,
+          "ad_spend": 39.01
+        },
+        {
+          "date": "2026-08-26",
+          "revenue": 186.66,
+          "ad_spend": 37.85
+        },
+        {
+          "date": "2026-08-27",
+          "revenue": 123.2,
+          "ad_spend": 52.59
+        },
+        {
+          "date": "2026-08-28",
+          "revenue": 118.74,
+          "ad_spend": 41.38
+        },
+        {
+          "date": "2026-08-29",
+          "revenue": 220.66,
+          "ad_spend": 49.53
+        },
+        {
+          "date": "2026-08-30",
+          "revenue": 416.62,
+          "ad_spend": 48.91
+        },
+        {
+          "date": "2026-08-31",
+          "revenue": 133.07,
+          "ad_spend": 51.46
+        },
+        {
+          "date": "2026-09-01",
+          "revenue": 432.29,
+          "ad_spend": 37.01
+        },
+        {
+          "date": "2026-09-02",
+          "revenue": 197.98,
+          "ad_spend": 42.75
+        },
+        {
+          "date": "2026-09-03",
+          "revenue": 568.59,
+          "ad_spend": 26.31
+        },
+        {
+          "date": "2026-09-04",
+          "revenue": 29.11,
+          "ad_spend": 32.21
+        },
+        {
+          "date": "2026-09-05",
+          "revenue": 165.03,
+          "ad_spend": 22.71
+        },
+        {
+          "date": "2026-09-06",
+          "revenue": 401.91,
+          "ad_spend": 40.95
+        },
+        {
+          "date": "2026-09-07",
+          "revenue": 213.78,
+          "ad_spend": 22.43
+        },
+        {
+          "date": "2026-09-08",
+          "revenue": 256.55,
+          "ad_spend": 24.01
+        },
+        {
+          "date": "2026-09-09",
+          "revenue": 262.62,
+          "ad_spend": 20.88
+        },
+        {
+          "date": "2026-09-10",
+          "revenue": 330.94,
+          "ad_spend": 27.47
+        },
+        {
+          "date": "2026-09-11",
+          "revenue": 78.28,
+          "ad_spend": 18.38
+        },
+        {
+          "date": "2026-09-12",
+          "revenue": 54.52,
+          "ad_spend": 15.85
+        },
+        {
+          "date": "2026-09-13",
+          "revenue": 148.35,
+          "ad_spend": 27.8
+        },
+        {
+          "date": "2026-09-14",
+          "revenue": 223.21,
+          "ad_spend": 17.42
+        },
+        {
+          "date": "2026-09-15",
+          "revenue": 31.46,
+          "ad_spend": 29.34
+        },
+        {
+          "date": "2026-09-16",
+          "revenue": 109.14,
+          "ad_spend": 30.04
+        },
+        {
+          "date": "2026-09-17",
+          "revenue": 113.9,
+          "ad_spend": 27.16
+        },
+        {
+          "date": "2026-09-18",
+          "revenue": 145.77,
+          "ad_spend": 19.11
+        },
+        {
+          "date": "2026-09-19",
+          "revenue": 191.45,
+          "ad_spend": 35.71
+        },
+        {
+          "date": "2026-09-20",
+          "revenue": 127.98,
+          "ad_spend": 32.22
+        },
+        {
+          "date": "2026-09-21",
+          "revenue": 131.42,
+          "ad_spend": 28.74
+        },
+        {
+          "date": "2026-09-22",
+          "revenue": 77.18,
+          "ad_spend": 28.79
+        },
+        {
+          "date": "2026-09-23",
+          "revenue": 81.25,
+          "ad_spend": 28.64
+        },
+        {
+          "date": "2026-09-24",
+          "revenue": 117.51,
+          "ad_spend": 24.87
+        },
+        {
+          "date": "2026-09-25",
+          "revenue": 24.71,
+          "ad_spend": 27.09
+        },
+        {
+          "date": "2026-09-26",
+          "revenue": 19.32,
+          "ad_spend": 24.89
+        },
+        {
+          "date": "2026-09-27",
+          "revenue": 65.15,
+          "ad_spend": 25.84
+        },
+        {
+          "date": "2026-09-28",
+          "revenue": 118.26,
+          "ad_spend": 24.55
+        },
+        {
+          "date": "2026-09-29",
+          "revenue": 157.7,
+          "ad_spend": 21.64
+        }
+      ],
+      "daily_predictions": [
+        {
+          "date": "2026-10-02",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-03",
+          "predicted_sales": 152.36587430992853
+        },
+        {
+          "date": "2026-10-04",
+          "predicted_sales": 152.36587430992853
+        },
+        {
+          "date": "2026-10-05",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-06",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-07",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-08",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-09",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-10",
+          "predicted_sales": 152.36587430992853
+        },
+        {
+          "date": "2026-10-11",
+          "predicted_sales": 152.36587430992853
+        },
+        {
+          "date": "2026-10-12",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-13",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-14",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-15",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-16",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-17",
+          "predicted_sales": 152.36587430992853
+        },
+        {
+          "date": "2026-10-18",
+          "predicted_sales": 152.36587430992853
+        },
+        {
+          "date": "2026-10-19",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-20",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-21",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-22",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-23",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-24",
+          "predicted_sales": 152.36587430992853
+        },
+        {
+          "date": "2026-10-25",
+          "predicted_sales": 152.36587430992853
+        },
+        {
+          "date": "2026-10-26",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-27",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-28",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-29",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-30",
+          "predicted_sales": 185.1229436928586
+        },
+        {
+          "date": "2026-10-31",
+          "predicted_sales": 152.36587430992853
+        }
+      ],
+      "model_fit_this_month": [],
+      "yoy": {
+        "period_label": "01-01 oct",
+        "this_year": {
+          "total": 0.0,
+          "organic": 0.0,
+          "ads": 0.0
+        },
+        "last_year": {
+          "total": 368.04,
+          "organic": 368.04,
+          "ads": 0.0
+        },
+        "yoy_pct": {
+          "total": -1.0,
+          "organic": -1.0,
+          "ads": null
+        }
+      },
+      "ads_sales_ratio": 0.16114293646069858,
+      "projected_total_sales_month": 5258.874686339391,
+      "budget_max_month": 211.85762735889116,
+      "tacos_implicito": 0.040285734115174644,
+      "tacos_alert": false,
+      "factor_breakdown": [
+        {
+          "name": "h10_search_volume",
+          "weight_pct": 34.93323625576195,
+          "direction": "negative",
+          "push_now": "down",
+          "vs_mean_pct": 28.191375832225994,
+          "label": "Volumen de búsqueda (Helium10)",
+          "source": "Helium10 (snapshot mensual, forward-filled)",
+          "caveat": null
+        },
+        {
+          "name": "competitor_avg_price",
+          "weight_pct": 17.563270568785004,
+          "direction": "positive",
+          "push_now": "down",
+          "vs_mean_pct": -1.3340536622574557,
+          "label": "Precio medio de la competencia",
+          "source": "Precio medio diario de los competidores de referencia (Helium10 Xray)",
+          "caveat": null
+        },
+        {
+          "name": "is_weekend",
+          "weight_pct": 16.646122055904353,
+          "direction": "negative",
+          "push_now": "neutral",
+          "vs_mean_pct": -0.1569858712715883,
+          "label": "Fin de semana",
+          "source": "Calendario (exacto, no promediado)",
+          "caveat": null
+        },
+        {
+          "name": "avg_bsr",
+          "weight_pct": 15.084560031144415,
+          "direction": "negative",
+          "push_now": "down",
+          "vs_mean_pct": 20.741840080186023,
+          "label": "Ranking de ventas (BSR)",
+          "source": "BSR diario del ASIN insignia de la categoría (Helium10 Xray)",
+          "caveat": null
+        },
+        {
+          "name": "ad_spend",
+          "weight_pct": 9.881187519908764,
+          "direction": "positive",
+          "push_now": "up",
+          "vs_mean_pct": 118.84521411461392,
+          "label": "Inversión en Ads",
+          "source": "Gasto diario en Ads de la cuenta (MerchantSpring)",
+          "caveat": null
+        },
+        {
+          "name": "avg_price",
+          "weight_pct": 5.891623568495509,
+          "direction": "negative",
+          "push_now": "down",
+          "vs_mean_pct": 1.9379092893525394,
+          "label": "Precio propio",
+          "source": "Precio diario del ASIN insignia de la categoría (Helium10 Xray)",
           "caveat": null
         }
       ]
@@ -27304,9 +30781,12 @@ var FC_CATEGORIES = {
     {key: 'fda_colchon', label: 'Funda de colchón'},
     {key: 'almohada',    label: 'Almohada'},
   ],
+  de: [
+    {key: 'fda_colchon', label: 'Funda de colchón'},
+  ],
 };
-var FC_ACTIVE_CAT = {es: 'almohada', fr: 'fda_colchon', it: 'fda_colchon'};
-var FC_PFX = {es: 'Es', fr: 'Fr', it: 'It'};
+var FC_ACTIVE_CAT = {es: 'almohada', fr: 'fda_colchon', it: 'fda_colchon', de: 'fda_colchon'};
+var FC_PFX = {es: 'Es', fr: 'Fr', it: 'It', de: 'De'};
 
 function fcEsc(s) {
   return String(s === null || s === undefined ? '' : s)
@@ -27322,8 +30802,8 @@ function fcCat(country, key) {
 function renderForecastGlobalTable() {
   var body = document.getElementById('fcGlobalTableBody');
   var rows = [];
-  var countryLabels = {es: '🇪🇸 España', fr: '🇫🇷 Francia', it: '🇮🇹 Italia'};
-  ['es', 'fr', 'it'].forEach(function(country) {
+  var countryLabels = {es: '🇪🇸 España', fr: '🇫🇷 Francia', it: '🇮🇹 Italia', de: '🇩🇪 Alemania'};
+  ['es', 'fr', 'it', 'de'].forEach(function(country) {
     (FC_CATEGORIES[country] || []).forEach(function(cat) {
       var m = fcCat(country, cat.key);
       if (!m) return;
@@ -27334,9 +30814,6 @@ function renderForecastGlobalTable() {
       var budget = m.budget_max_month > 0 ? fcFmtEUR0(m.budget_max_month) : 'sin dato';
       rows.push('<tr><td class="fc-country-cell">' + countryLabels[country] + ' · ' + fcEsc(cat.label) + '</td><td>' + m.r2.toFixed(2) + '</td><td>' + cols + '</td><td>' + yoyText + '</td><td>' + budget + '</td><td>' + tacos + '</td></tr>');
     });
-  });
-  ['🇩🇪 Alemania'].forEach(function(label) {
-    rows.push('<tr><td class="fc-country-cell">' + label + '</td><td colspan="5"><span class="fc-no-model-badge">Sin modelo entrenado todavía</span></td></tr>');
   });
   body.innerHTML = rows.join('');
 }
@@ -27603,9 +31080,18 @@ function renderForecastChart(pfx, m) {
   if (modelFit.length) {
     svg.appendChild(el('path', {d: pathFor(modelFit, 'date', 'predicted'), fill: 'none', stroke: 'var(--accent)', 'stroke-width': 2}));
   }
+  /* Si el mes en curso (según la fecha real de hoy) todavía no tiene ningún
+     día real en 'actual' -- p.ej. justo tras cambiar de mes, antes de que la
+     automatización traiga los primeros días -- ni modelFit ni el 'actual'
+     filtrado por mes tienen filas. Caer entonces al ÚLTIMO día real de la
+     serie COMPLETA (m.actual, sin filtrar por mes) en vez de indexar un
+     array vacío, que lanzaba TypeError y abortaba toda la sección (bug real
+     encontrado el 1-oct-2026, primer día tras el cambio de mes de este ciclo). */
   var bridgeStart = modelFit.length
     ? {date: modelFit[modelFit.length - 1].date, predicted_sales: modelFit[modelFit.length - 1].predicted}
-    : {date: actual[actual.length - 1].date, predicted_sales: actual[actual.length - 1].revenue};
+    : (actual.length
+        ? {date: actual[actual.length - 1].date, predicted_sales: actual[actual.length - 1].revenue}
+        : {date: m.actual[m.actual.length - 1].date, predicted_sales: m.actual[m.actual.length - 1].revenue});
   var bridge = [bridgeStart].concat(predicted);
   svg.appendChild(el('path', {d: pathFor(bridge, 'date', 'predicted_sales'), fill: 'none', stroke: 'var(--accent)', 'stroke-width': 2, 'stroke-dasharray': '6 4'}));
 }
@@ -27615,6 +31101,7 @@ safeSection('Forecast de Demanda', () => {
   renderForecastCategory('es', FC_ACTIVE_CAT.es);
   renderForecastCategory('fr', FC_ACTIVE_CAT.fr);
   renderForecastCategory('it', FC_ACTIVE_CAT.it);
+  renderForecastCategory('de', FC_ACTIVE_CAT.de);
 });
 </script>
 
