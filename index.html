@@ -962,9 +962,9 @@ canvas.donut { display: block; }
 <div class="ai-comment" id="invComment"><span class="ai-icon">💬</span><span>Calculando…</span></div>
 
 <!-- ══════════════════ PO ABIERTO POR PAÍS (EPINIUM) ══════════════════ -->
-<div class="section-eyebrow">PO abierto — (dato en vivo, 27 sep 2026)</div>
+<div class="section-eyebrow">PO abierto — (dato en vivo, 01-oct-2026)</div>
 <div class="card-desc" style="margin: -4px 0 12px;">
-  Complementa la tabla de arriba (valor ya recibido): esto es lo que está pedido y pendiente de recibir ahora mismo, por país. El "Valor estimado" es un cálculo propio (no una cifra de Amazon) a partir del coste medio por unidad.
+  Complementa la tabla de arriba (valor ya recibido): esto es lo que está pedido y pendiente de recibir ahora mismo, por país. <strong>No varía con el selector de semana/rango de arriba, a propósito</strong> — "PO abierta" es un snapshot del momento, no una métrica de un periodo pasado (no existe "PO abierta durante la semana del 15 al 21 de julio", solo existe "lo que hay abierto ahora"). "Confirmado" sí lleva ventana (últimos 30 días hasta hoy). El "Valor estimado" es un cálculo propio (no una cifra de Amazon) a partir del coste medio por unidad.
 </div>
 <div class="card" style="margin-bottom:24px;">
   <div class="tbl-wrap">
@@ -975,19 +975,19 @@ canvas.donut { display: block; }
           <th class="r">PO abierta (u)</th>
           <th class="r">Valor estimado (€)</th>
           <th class="r">ASINs con PO abierta</th>
-          <th class="r">Confirmado (30d, u)</th>
+          <th class="r">Confirmado (01 sep - 01 oct, u)</th>
           <th class="r">Lead time medio (días)</th>
         </tr>
       </thead>
       <tbody>
-        <tr data-country="es" onclick="toggleCountryHighlight('es')"><td><span class="mkt-chip">🇪🇸 ES</span></td><td class="r">6.077</td><td class="r">~51.322 €</td><td class="r">23</td><td class="r">52</td><td class="r">1,0</td></tr>
-        <tr data-country="fr" onclick="toggleCountryHighlight('fr')"><td><span class="mkt-chip">🇫🇷 FR</span></td><td class="r">510</td><td class="r">~4.492 €</td><td class="r">10</td><td class="r">0</td><td class="r">1,0</td></tr>
-        <tr data-country="it" onclick="toggleCountryHighlight('it')"><td><span class="mkt-chip">🇮🇹 IT</span></td><td class="r">1.658</td><td class="r">~11.389 €</td><td class="r">44</td><td class="r">1.765</td><td class="r">2,0</td></tr>
-        <tr data-country="de" onclick="toggleCountryHighlight('de')"><td><span class="mkt-chip">🇩🇪 DE</span></td><td class="r">1.233</td><td class="r">~9.177 €</td><td class="r">19</td><td class="r">143</td><td class="r">0,9</td></tr>
+        <tr data-country="es" onclick="toggleCountryHighlight('es')"><td><span class="mkt-chip">🇪🇸 ES</span></td><td class="r">5.305</td><td class="r">~42.979 €</td><td class="r">19</td><td class="r">52</td><td class="r">0,8</td></tr>
+        <tr data-country="fr" onclick="toggleCountryHighlight('fr')"><td><span class="mkt-chip">🇫🇷 FR</span></td><td class="r">510</td><td class="r">~5.927 €</td><td class="r">10</td><td class="r">0</td><td class="r">0,9</td></tr>
+        <tr data-country="it" onclick="toggleCountryHighlight('it')"><td><span class="mkt-chip">🇮🇹 IT</span></td><td class="r">1.658</td><td class="r">~17.818 €</td><td class="r">44</td><td class="r">1.765</td><td class="r">2,3</td></tr>
+        <tr data-country="de" onclick="toggleCountryHighlight('de')"><td><span class="mkt-chip">🇩🇪 DE</span></td><td class="r">1.233</td><td class="r">~13.010 €</td><td class="r">19</td><td class="r">143</td><td class="r">0,7</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="src-note">Snapshot 27-sep-2026 · FR con catálogo parcialmente sincronizado.</div>
+  <div class="src-note">Snapshot 01-oct-2026 · ventana 01 sep - 01 oct para Confirmado/Valor estimado · FR con catálogo parcialmente sincronizado.</div>
 </div>
 
 <!-- ══════════════════ TOP PRODUCTOS ══════════════════ -->
@@ -30110,7 +30110,7 @@ const FR_SO_MONTHLY = [
   {"month":"2026-01","so":9343.22},  {"month":"2026-02","so":6255.02},  {"month":"2026-03","so":5856.58},
   {"month":"2026-04","so":6915.77},  {"month":"2026-05","so":8583.62},  {"month":"2026-06","so":9108.00},
   {"month":"2026-07","so":17215.62}, {"month":"2026-08","so":21404.59},
-  {"month":"2026-09","so":0}
+  {"month":"2026-09","so":17259.73}, {"month":"2026-10","so":0}
 ];
 const MONTHS_ES_SHORT = {'01':'Ene','02':'Feb','03':'Mar','04':'Abr','05':'May','06':'Jun','07':'Jul','08':'Ago','09':'Sep','10':'Oct','11':'Nov','12':'Dic'};
 
