@@ -31001,12 +31001,17 @@ function renderForecastAdsBlock(pfx, m) {
     return;
   }
 
-  var lastDate = actual[actual.length - 1].date;
-  var parts = lastDate.split('-');
-  var year = parts[0], month = parts[1];
+  /* Mismo fix que renderForecastPaceBlock: "mes en curso" = mes real de hoy
+     (reloj del sistema), no el mes del último día con gasto real cargado --
+     si no, el bloque de Ads se queda mostrando el mes anterior ya cerrado
+     el día 1 del mes nuevo (bug visto en vivo el 1-oct-2026: "30 de 30 días
+     de septiembre" con ritmo 301% el día 1 de octubre). */
+  var today = new Date();
+  var year = String(today.getFullYear());
+  var month = String(today.getMonth() + 1).padStart(2, '0');
   var monthPrefix = year + '-' + month;
-  var daysInMonth = new Date(parseInt(year, 10), parseInt(month, 10), 0).getDate();
-  var monthName = MONTHS_FULL[parseInt(month, 10) - 1];
+  var daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  var monthName = MONTHS_FULL[today.getMonth()];
 
   var rowsThisMonth = actual.filter(function(r) { return r.date.slice(0, 7) === monthPrefix; });
   var daysElapsed = rowsThisMonth.length;
@@ -31018,26 +31023,36 @@ function renderForecastAdsBlock(pfx, m) {
   elSpent.textContent = fcFmtEUR0(spent);
   elSpentSub.textContent = daysElapsed + ' de ' + daysInMonth + ' días de ' + monthName;
 
-  if (budget > 0 && expectedPace > 0) {
+  if (budget > 0) {
     elPace.textContent = fcFmtEUR0(expectedPace);
     elPaceSub.textContent = 'Presupuesto del mes prorrateado al día ' + daysElapsed;
-    var pct = (spent / expectedPace) * 100;
-    elPct.textContent = pct.toLocaleString('es-ES', {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '%';
-    elPctSub.textContent = pct > 110 ? 'Por encima del ritmo previsto' : (pct < 90 ? 'Por debajo del ritmo previsto' : 'En línea con el ritmo previsto');
     elRem.textContent = fcFmtEUR0(Math.max(0, budget - spent));
     elRemSub.textContent = 'Sobre el presupuesto máximo recomendado';
 
-    /* El "ritmo de gasto" (arriba) y el badge TACOS de más arriba miden cosas
-       distintas: ritmo compara el gasto real de hoy con el presupuesto recomendado
-       PRORRATEADO a estas alturas del mes; TACOS compara el presupuesto MÁXIMO
-       recomendado del mes COMPLETO con las ventas proyectadas del mes completo.
-       Por eso pueden discrepar: un mes puede ir muy por encima de ritmo (gasto
-       concentrado al principio) y aun así el TACOS del mes completo salir "OK" si
-       las ventas proyectadas lo compensan. Avisar explícitamente cuando diverjan
-       para que no parezca una contradicción del dashboard. */
-    if (elMismatch && pct > 110 && !m.tacos_alert) {
-      elMismatch.style.display = 'block';
-      elMismatch.textContent = '⚠ El gasto ya va ' + Math.round(pct) + '% por encima del ritmo previsto para estas alturas del mes, aunque el TACOS del mes completo siga marcando "OK". Son medidas distintas: TACOS compara el presupuesto máximo del mes completo con las ventas proyectadas; el ritmo compara el gasto real de hoy con ese mismo presupuesto prorrateado a día de hoy. Vigilar si el ritmo se mantiene así el resto del mes.';
+    if (expectedPace > 0) {
+      var pct = (spent / expectedPace) * 100;
+      elPct.textContent = pct.toLocaleString('es-ES', {minimumFractionDigits: 0, maximumFractionDigits: 0}) + '%';
+      elPctSub.textContent = pct > 110 ? 'Por encima del ritmo previsto' : (pct < 90 ? 'Por debajo del ritmo previsto' : 'En línea con el ritmo previsto');
+
+      /* El "ritmo de gasto" (arriba) y el badge TACOS de más arriba miden cosas
+         distintas: ritmo compara el gasto real de hoy con el presupuesto recomendado
+         PRORRATEADO a estas alturas del mes; TACOS compara el presupuesto MÁXIMO
+         recomendado del mes COMPLETO con las ventas proyectadas del mes completo.
+         Por eso pueden discrepar: un mes puede ir muy por encima de ritmo (gasto
+         concentrado al principio) y aun así el TACOS del mes completo salir "OK" si
+         las ventas proyectadas lo compensan. Avisar explícitamente cuando diverjan
+         para que no parezca una contradicción del dashboard. */
+      if (elMismatch && pct > 110 && !m.tacos_alert) {
+        elMismatch.style.display = 'block';
+        elMismatch.textContent = '⚠ El gasto ya va ' + Math.round(pct) + '% por encima del ritmo previsto para estas alturas del mes, aunque el TACOS del mes completo siga marcando "OK". Son medidas distintas: TACOS compara el presupuesto máximo del mes completo con las ventas proyectadas; el ritmo compara el gasto real de hoy con ese mismo presupuesto prorrateado a día de hoy. Vigilar si el ritmo se mantiene así el resto del mes.';
+      }
+    } else {
+      /* daysElapsed === 0 -- primer día del mes, antes de que la
+         automatización cargue el primer día real de gasto. El presupuesto
+         SÍ existe (budget > 0); lo que no existe todavía es ritmo que
+         comparar, así que no es lo mismo que "sin presupuesto objetivo". */
+      elPct.textContent = '—';
+      elPctSub.textContent = 'Aún no hay días transcurridos este mes para calcular ritmo';
     }
   } else {
     elPace.textContent = 'sin dato';
