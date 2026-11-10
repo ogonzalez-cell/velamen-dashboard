@@ -1,4 +1,5 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+
 
 
 <title>Velamen Analytics — Dashboard Semanal</title>
@@ -816,7 +817,7 @@ canvas.donut { display: block; }
   <div class="card">
     <div class="card-head">
       <div class="card-title">Francia — Recuperación vs año anterior</div>
-      <div class="card-desc">Shipped Revenue (SO) mensual 2026 vs mismo mes 2025 · Gap % interanual · ⚠️ No comparar directamente con el KPI "Ordered Revenue" de arriba — miden cosas distintas (pedidos de consumidor vs. lo realmente facturado/enviado) y pueden divergir mucho en meses con problemas de stock</div>
+      <div class="card-desc">Ordered Revenue mensual 2026 vs mismo mes 2025 · Gap % interanual · Fuente: MerchantSpring (Vendor FR), cifra de pedidos de consumidor</div>
     </div>
     <div class="card-body">
       <canvas id="frChart" height="185"></canvas>
@@ -33050,7 +33051,7 @@ function applyCountryHighlight() {
 }
 
 /* ──────────────────────────────────────────
-   FR — SHIPPED REVENUE (SO) MENSUAL EMBEBIDO
+   FR — ORDERED REVENUE MENSUAL EMBEBIDO (serie reconstruida 10 Nov 2026; antes mezclaba bases)
    Fuente: MerchantSpring getVendorSalesByPeriod (interval="M"), verificado 2 Jul 2026.
    Serie plana cronológica Ene 2025 → mes en curso; el mes -12 posiciones es el mismo
    mes del año anterior. El gráfico se recalcula solo a partir de esta lista: para
@@ -33058,14 +33059,14 @@ function applyCountryHighlight() {
    (no hay que tocar la lógica de render).
 ────────────────────────────────────────── */
 const FR_SO_MONTHLY = [
-  {"month":"2025-01","so":33398.60}, {"month":"2025-02","so":24913.29}, {"month":"2025-03","so":26772.65},
-  {"month":"2025-04","so":26659.79}, {"month":"2025-05","so":21964.51}, {"month":"2025-06","so":23429.34},
-  {"month":"2025-07","so":22776.79}, {"month":"2025-08","so":24074.45}, {"month":"2025-09","so":16662.12},
-  {"month":"2025-10","so":12137.14}, {"month":"2025-11","so":10275.77}, {"month":"2025-12","so":9165.40},
-  {"month":"2026-01","so":9343.22},  {"month":"2026-02","so":6255.02},  {"month":"2026-03","so":5856.58},
-  {"month":"2026-04","so":6915.77},  {"month":"2026-05","so":8583.62},  {"month":"2026-06","so":9108.00},
-  {"month":"2026-07","so":17215.62}, {"month":"2026-08","so":21404.59},
-  {"month":"2026-09","so":17259.73}, {"month":"2026-10","so":4772.42},
+  {"month":"2025-01","so":41915.40}, {"month":"2025-02","so":42913.34}, {"month":"2025-03","so":50173.81},
+  {"month":"2025-04","so":41685.56}, {"month":"2025-05","so":38243.39}, {"month":"2025-06","so":39057.45},
+  {"month":"2025-07","so":51232.84}, {"month":"2025-08","so":53772.13}, {"month":"2025-09","so":40814.09},
+  {"month":"2025-10","so":35876.80}, {"month":"2025-11","so":29596.54}, {"month":"2025-12","so":23544.24},
+  {"month":"2026-01","so":23248.43}, {"month":"2026-02","so":20509.64}, {"month":"2026-03","so":24132.29},
+  {"month":"2026-04","so":20986.61}, {"month":"2026-05","so":24030.13}, {"month":"2026-06","so":23015.19},
+  {"month":"2026-07","so":22764.89}, {"month":"2026-08","so":23653.90}, {"month":"2026-09","so":18913.01},
+  {"month":"2026-10","so":14719.43},
   {"month":"2026-11","so":0}
 ];
 const MONTHS_ES_SHORT = {'01':'Ene','02':'Feb','03':'Mar','04':'Abr','05':'May','06':'Jun','07':'Jul','08':'Ago','09':'Sep','10':'Oct','11':'Nov','12':'Dic'};
@@ -34194,4 +34195,3 @@ safeSection('Forecast de Demanda', () => {
 </script>
 
 </body></html>
-<!-- refresh 2026-10-30 -->
