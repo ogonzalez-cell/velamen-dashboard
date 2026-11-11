@@ -353,7 +353,6 @@ canvas.donut { display: block; }
 
 /* ── MID GRID ───────────────────────── */
 .mid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 24px; align-items: start; }
-#frChart { display: block; width: 100%; }
 .callout {
   background: var(--accent-tint); border-left: 3px solid var(--accent);
   border-radius: 6px; padding: 10px 13px; font-size: 15px; line-height: 1.6;
@@ -806,23 +805,6 @@ canvas.donut { display: block; }
           <span class="leg-val" id="donutSalesDeVal">2.998 €</span>
           <span class="leg-pct" id="donutSalesDePct">4,4%</span>
         </div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- ══════════════════ MID: FR CHART + STOCK ══════════════════ -->
-<div class="mid">
-  <div class="card">
-    <div class="card-head">
-      <div class="card-title">Francia — Recuperación vs año anterior</div>
-      <div class="card-desc">Ordered Revenue mensual 2026 vs mismo mes 2025 · Gap % interanual · Fuente: MerchantSpring (Vendor FR), cifra de pedidos de consumidor</div>
-    </div>
-    <div class="card-body">
-      <canvas id="frChart" height="185"></canvas>
-      <div class="callout" id="frCallout">
-        <strong>Calculando…</strong>
       </div>
     </div>
   </div>
@@ -33050,166 +33032,7 @@ function applyCountryHighlight() {
   if (_dailyChartLastRange) safeSection('Gráfico diario (filtro país)', () => renderDailyChart(_dailyChartLastRange[0], _dailyChartLastRange[1]));
 }
 
-/* ──────────────────────────────────────────
-   FR — ORDERED REVENUE MENSUAL EMBEBIDO (serie reconstruida 10 Nov 2026; antes mezclaba bases)
-   Fuente: MerchantSpring getVendorSalesByPeriod (interval="M"), verificado 2 Jul 2026.
-   Serie plana cronológica Ene 2025 → mes en curso; el mes -12 posiciones es el mismo
-   mes del año anterior. El gráfico se recalcula solo a partir de esta lista: para
-   añadir el mes que se acaba de cerrar basta con appendear una entrada más aquí
-   (no hay que tocar la lógica de render).
-────────────────────────────────────────── */
-const FR_SO_MONTHLY = [
-  {"month":"2025-01","so":41915.40}, {"month":"2025-02","so":42913.34}, {"month":"2025-03","so":50173.81},
-  {"month":"2025-04","so":41685.56}, {"month":"2025-05","so":38243.39}, {"month":"2025-06","so":39057.45},
-  {"month":"2025-07","so":51232.84}, {"month":"2025-08","so":53772.13}, {"month":"2025-09","so":40814.09},
-  {"month":"2025-10","so":35876.80}, {"month":"2025-11","so":29596.54}, {"month":"2025-12","so":23544.24},
-  {"month":"2026-01","so":23248.43}, {"month":"2026-02","so":20509.64}, {"month":"2026-03","so":24132.29},
-  {"month":"2026-04","so":20986.61}, {"month":"2026-05","so":24030.13}, {"month":"2026-06","so":23015.19},
-  {"month":"2026-07","so":22764.89}, {"month":"2026-08","so":23653.90}, {"month":"2026-09","so":18913.01},
-  {"month":"2026-10","so":14719.43},
-  {"month":"2026-11","so":0}
-];
 const MONTHS_ES_SHORT = {'01':'Ene','02':'Feb','03':'Mar','04':'Abr','05':'May','06':'Jun','07':'Jul','08':'Ago','09':'Sep','10':'Oct','11':'Nov','12':'Dic'};
-
-function buildFrYoySeries() {
-  const out = [];
-  for (let i = 12; i < FR_SO_MONTHLY.length; i++) {
-    const cur = FR_SO_MONTHLY[i], prior = FR_SO_MONTHLY[i - 12];
-    if (cur.so <= 0 || prior.so <= 0) continue; // mes aún no cerrado o sin dato prior
-    out.push({
-      label: MONTHS_ES_SHORT[cur.month.slice(5, 7)],
-      yoy: Math.round(((cur.so - prior.so) / prior.so) * 1000) / 10
-    });
-  }
-  return out;
-}
-
-/* ──────────────────────────────────────────
-   FR BAR CHART
-────────────────────────────────────────── */
-(function() {
-  const canvas = document.getElementById('frChart');
-  const ctx    = canvas.getContext('2d');
-  const dpr    = Math.min(window.devicePixelRatio || 1, 2);
-
-  function render() {
-    const W = canvas.parentElement.offsetWidth - 40;
-    const H = 185;
-    canvas.width  = W * dpr;
-    canvas.height = H * dpr;
-    canvas.style.width  = W + 'px';
-    canvas.style.height = H + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    const series = buildFrYoySeries();
-    const months = series.map(s => s.label);
-    const vals   = series.map(s => s.yoy);
-    let worstIdx = 0;
-    vals.forEach((v, i) => { if (v < vals[worstIdx]) worstIdx = i; });
-    const mg = { top: 20, right: 10, bottom: 26, left: 44 };
-    const cW = W - mg.left - mg.right;
-    const cH = H - mg.top  - mg.bottom;
-    const minV = Math.min(-55, Math.floor(Math.min(...vals) / 10) * 10 - 5);
-    const maxV = 10, span = maxV - minV;
-    const toY  = v => mg.top + ((maxV - v) / span) * cH;
-    const z    = toY(0);
-    const gridStep = span > 70 ? 20 : 10;
-    const gridVals = [];
-    for (let v = maxV; v >= minV; v -= gridStep) gridVals.push(Math.round(v / 10) * 10);
-
-    // grid
-    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-    ctx.font = '13px system-ui';
-    gridVals.forEach(v => {
-      const y = toY(v);
-      ctx.beginPath(); ctx.moveTo(mg.left, y); ctx.lineTo(mg.left + cW, y);
-      ctx.strokeStyle = v === 0 ? '#12151F' : '#DDE3EF';
-      ctx.lineWidth   = v === 0 ? 1.5 : .75;
-      ctx.stroke();
-      ctx.fillStyle = '#94A0B8';
-      ctx.fillText(v + '%', mg.left - 6, y);
-    });
-
-    // bars
-    const slotW = cW / months.length;
-    const barW  = slotW * 0.58;
-    vals.forEach((v, i) => {
-      const x = mg.left + i * slotW + (slotW - barW) / 2;
-      const isPos    = v >= 0;
-      const barTop   = isPos ? toY(v) : z;
-      const barBot   = isPos ? z : toY(v);
-      const r = 3;
-      const isWorst  = i === worstIdx;
-
-      ctx.fillStyle = isPos ? '#EAF5EE' : '#FDEAEA';
-      ctx.beginPath();
-      if (isPos) {
-        ctx.moveTo(x + r, barTop); ctx.lineTo(x + barW - r, barTop);
-        ctx.arcTo(x + barW, barTop, x + barW, barTop + r, r);
-        ctx.lineTo(x + barW, barBot); ctx.lineTo(x, barBot);
-        ctx.lineTo(x, barTop + r); ctx.arcTo(x, barTop, x + r, barTop, r);
-      } else {
-        ctx.moveTo(x, barTop); ctx.lineTo(x + barW, barTop);
-        ctx.lineTo(x + barW, barBot - r);
-        ctx.arcTo(x + barW, barBot, x + barW - r, barBot, r);
-        ctx.lineTo(x + r, barBot); ctx.arcTo(x, barBot, x, barBot - r, r);
-        ctx.lineTo(x, barTop);
-      }
-      ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = isPos ? '#1E6E47' : (isWorst ? '#B82C2C' : '#C8807A');
-      ctx.lineWidth   = isWorst ? 1.8 : 1.2;
-      ctx.stroke();
-
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.font = (isWorst ? 'bold' : '600') + ' 14px system-ui';
-      ctx.fillStyle = isPos ? '#1E6E47' : '#B82C2C';
-      ctx.fillText((isPos ? '+' : '') + v + '%', x + barW / 2, isPos ? toY(v) - 8 : toY(v) + 10);
-
-      ctx.font = '13px system-ui';
-      ctx.fillStyle = isWorst ? '#B82C2C' : '#94A0B8';
-      ctx.fillText(months[i], x + barW / 2, mg.top + cH + mg.bottom - 5);
-    });
-
-    // recovery arrow: desde el peor mes hasta el último disponible, si hay mejora
-    const px = i => mg.left + i * slotW + slotW / 2;
-    const lastIdx = vals.length - 1;
-    if (lastIdx > worstIdx && vals[lastIdx] > vals[worstIdx]) {
-      ctx.beginPath(); ctx.setLineDash([4, 3]);
-      ctx.strokeStyle = '#F7921E'; ctx.lineWidth = 2;
-      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-      ctx.moveTo(px(worstIdx), toY(vals[worstIdx]));
-      for (let i = worstIdx + 1; i <= lastIdx; i++) ctx.lineTo(px(i), toY(vals[i]));
-      ctx.stroke(); ctx.setLineDash([]);
-      ctx.beginPath(); ctx.fillStyle = '#F7921E';
-      ctx.arc(px(lastIdx), toY(vals[lastIdx]), 3.5, 0, Math.PI * 2); ctx.fill();
-      ctx.font = 'bold 13px system-ui'; ctx.fillStyle = '#F7921E';
-      ctx.textAlign = 'center';
-      ctx.fillText('recuperación ↗', px((worstIdx + lastIdx) / 2), toY(vals[lastIdx]) - 14);
-    }
-
-    updateFrCallout(series, worstIdx, lastIdx);
-  }
-
-  render();
-  window.addEventListener('resize', render);
-})();
-
-function updateFrCallout(series, worstIdx, lastIdx) {
-  const el = document.getElementById('frCallout');
-  if (!el || !series.length) return;
-  const worst = series[worstIdx], last = series[lastIdx];
-  const improved = lastIdx > worstIdx && last.yoy > worst.yoy;
-  const deltaPts = Math.round((last.yoy - worst.yoy) * 10) / 10;
-  let html = '<strong>Suelo en ' + worst.label + ' (' + worst.yoy + '%).</strong> ';
-  if (improved) {
-    html += 'Desde entonces el gap se ha reducido ' + Math.abs(deltaPts) + ' puntos hasta ' + last.label + ' (' + last.yoy + '%) — recuperación parcial en marcha, aunque el nivel sigue muy por debajo del año anterior.';
-  } else if (lastIdx === worstIdx) {
-    html += last.label + ' sigue siendo el peor mes registrado — todavía sin señales de recuperación.';
-  } else {
-    html += 'Desde ' + worst.label + ' el gap ha vuelto a empeorar hasta ' + last.label + ' (' + last.yoy + '%) — no hay recuperación consolidada todavía.';
-  }
-  el.innerHTML = html;
-}
 
 /* Rango por defecto al entrar: SIEMPRE mes en curso hasta hoy (mes-a-la-fecha),
    calculado con la fecha real del navegador en cada carga — no una fecha fija.
