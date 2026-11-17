@@ -813,7 +813,7 @@ canvas.donut { display: block; }
 
 <!-- ══════════════════ INVENTARIO & POs ══════════════════ -->
 <div class="section-eyebrow" id="invEyebrow">Inventario — Amazon Vendor Central · Junio 2026</div>
-<div class="card-desc" style="margin: -4px 0 12px;">Fuente: MerchantSpring <code>generateInventoryHealthReport</code> (Vendor) — snapshot semanal, se actualiza con el mismo selector de fechas de arriba (última semana con datos del rango elegido), sin depender de CSVs manuales.</div>
+<div class="card-desc" style="margin: -4px 0 12px;">Fuente: Epinium (Vendor Central) — foto semanal en <strong>unidades</strong> (el último dato de cada semana), se actualiza con el mismo selector de fechas de arriba. Francia es un dato aproximado: Epinium todavía no trae todos sus ASIN (≈10-20 % menos stock que Vendor Central).</div>
 
 <div class="inv-grid">
   <div class="inv-card" data-country="es" onclick="toggleCountryHighlight('es')">
@@ -822,7 +822,7 @@ canvas.donut { display: block; }
       <span class="inv-status warning" id="invEsStatus">Aged 31%</span>
     </div>
     <div class="inv-row">
-      <div class="inv-detail">Sellable: <strong id="invEsSellable">2.504u</strong> · <span id="invEsSellableCost">18.302 €</span></div>
+      <div class="inv-detail">Sellable: <strong id="invEsSellable">2.504u</strong></div>
       <div class="inv-tags">
         <span class="itag aged" id="invEsAgedTag">781u aged 90d+ (6.176 €)</span>
         <span class="itag ok" id="invEsUnhealthyTag">176u unhealthy</span>
@@ -842,7 +842,7 @@ canvas.donut { display: block; }
       <div class="inv-tags" id="frAsin2Tags"></div>
     </div>
     <div class="inv-row">
-      <div class="inv-detail muted">Portfolio de la semana: <strong id="invFrSellable">1.014u</strong> sellable (<span id="invFrSellableCost">7.750 €</span>) · <span id="invFrAgedTag">444u aged</span> · <span id="invFrPoTag">485u en PO abiertas</span></div>
+      <div class="inv-detail muted">Portfolio de la semana: <strong id="invFrSellable">1.014u</strong> sellable · <span id="invFrAgedTag">444u aged</span> · <span id="invFrPoTag">485u en PO abiertas</span></div>
     </div>
   </div>
   <div class="inv-card" data-country="it" onclick="toggleCountryHighlight('it')">
@@ -851,7 +851,7 @@ canvas.donut { display: block; }
       <span class="inv-status warning" id="invItStatus">Unhealthy 24%</span>
     </div>
     <div class="inv-row">
-      <div class="inv-detail">Sellable: <strong id="invItSellable">536u</strong> · <span id="invItSellableCost">4.948 €</span></div>
+      <div class="inv-detail">Sellable: <strong id="invItSellable">536u</strong></div>
       <div class="inv-tags">
         <span class="itag aged" id="invItUnhealthyTag">127u unhealthy (1.781 €)</span>
         <span class="itag aged" id="invItAgedTag">129u aged 90d+ (1.438 €)</span>
@@ -865,7 +865,7 @@ canvas.donut { display: block; }
       <span class="inv-status ok" id="invDeStatus">Overstock (hub PL)</span>
     </div>
     <div class="inv-row">
-      <div class="inv-detail">Sellable: <strong id="invDeSellable">1.930u</strong> · <span id="invDeSellableCost">17.885 €</span></div>
+      <div class="inv-detail">Sellable: <strong id="invDeSellable">1.930u</strong></div>
       <div class="inv-tags">
         <span class="itag aged" id="invDeAgedTag">892u aged 90d+ — 46% (10.417 €)</span>
         <span class="itag ok" id="invDeUnhealthyTag">45u unhealthy</span>
@@ -880,7 +880,7 @@ canvas.donut { display: block; }
       <span class="inv-status pending" id="invUkStatus">Sin datos</span>
     </div>
     <div class="inv-row">
-      <div class="inv-detail">Sellable: <strong id="invUkSellable">—</strong> · <span id="invUkSellableCost">—</span></div>
+      <div class="inv-detail">Sellable: <strong id="invUkSellable">—</strong></div>
       <div class="inv-tags">
         <span class="itag aged" id="invUkAgedTag">—</span>
         <span class="itag ok" id="invUkUnhealthyTag">—</span>
@@ -31241,11 +31241,12 @@ es: [
     {"date":"2026-09-20","sellableUnits":3450,"sellableCost":28358.32,"aged90Units":271,"aged90Cost":2698.08,"unhealthyUnits":76,"unhealthyCost":894.47,"unsellableUnits":13,"openPo":6204,"unitsShipped":518},
     {"date":"2026-09-27","sellableUnits":4270,"sellableCost":34467.97,"aged90Units":245,"aged90Cost":2446.27,"unhealthyUnits":128,"unhealthyCost":1591.35,"unsellableUnits":19,"openPo":8484,"unitsShipped":578},
     {"date":"2026-10-04","sellableUnits":4217,"sellableCost":33984.87,"unhealthyUnits":154,"unhealthyCost":1544.33,"aged90Units":245,"aged90Cost":2367.31,"unsellableUnits":24,"openPo":8323,"unitsShipped":726},
-    {"date":"2026-10-11","sellableUnits":4457,"sellableCost":36229.28,"unhealthyUnits":165,"unhealthyCost":1675.65,"aged90Units":228,"aged90Cost":2218.59,"unsellableUnits":25,"openPo":9429,"unitsShipped":526},
-    {"date":"2026-10-18","sellableUnits":5131,"sellableCost":43119.23,"unhealthyUnits":146,"unhealthyCost":1608.08,"aged90Units":251,"aged90Cost":2363.28,"unsellableUnits":19,"openPo":8926,"unitsShipped":525},
-    {"date":"2026-10-25","sellableUnits":6184,"sellableCost":51844.42,"unhealthyUnits":135,"unhealthyCost":1450.14,"aged90Units":323,"aged90Cost":2902.61,"unsellableUnits":16,"openPo":7215,"unitsShipped":476},
-    {"date":"2026-11-01","sellableUnits":8114,"sellableCost":68214.08,"unhealthyUnits":158,"unhealthyCost":1747.89,"aged90Units":377,"aged90Cost":3220.91,"unsellableUnits":16,"openPo":3445,"unitsShipped":508},
-  ],
+    {"date":"2026-10-11","sellableUnits":4456,"unhealthyUnits":25,"aged90Units":228,"unsellableUnits":25,"unitsShipped":526,"openPo":9433},
+    {"date":"2026-10-18","sellableUnits":5131,"unhealthyUnits":19,"aged90Units":251,"unsellableUnits":19,"unitsShipped":529,"openPo":8874},
+    {"date":"2026-10-25","sellableUnits":6184,"unhealthyUnits":16,"aged90Units":323,"unsellableUnits":16,"unitsShipped":476,"openPo":7232},
+    {"date":"2026-11-01","sellableUnits":8114,"unhealthyUnits":16,"aged90Units":377,"unsellableUnits":16,"unitsShipped":508,"openPo":3445},
+    {"date":"2026-11-08","sellableUnits":9106,"unhealthyUnits":21,"aged90Units":409,"unsellableUnits":21,"unitsShipped":438,"openPo":3431}
+],
 fr: [
     {"date":"2026-01-01","sellableUnits":2241,"sellableCost":22872.24,"unhealthyUnits":49,"unhealthyCost":477.72,"aged90Units":1178,"aged90Cost":11641.51,"unsellableUnits":1,"unitsShipped":20,"openPo":589},
     {"date":"2026-01-04","sellableUnits":2100,"sellableCost":20902.82,"unhealthyUnits":53,"unhealthyCost":450.08,"aged90Units":1136,"aged90Cost":9910.61,"unsellableUnits":1,"unitsShipped":42,"openPo":826},
@@ -31291,7 +31292,8 @@ fr: [
     {"date":"2026-10-18","sellableUnits":1575,"sellableCost":16126.46,"unhealthyUnits":65,"unhealthyCost":608.01,"aged90Units":738,"aged90Cost":7239.98,"unsellableUnits":1,"openPo":1498,"unitsShipped":47},
     {"date":"2026-10-25","sellableUnits":1837,"sellableCost":18209.82,"unhealthyUnits":63,"unhealthyCost":599.39,"aged90Units":794,"aged90Cost":7770.73,"unsellableUnits":1,"openPo":1268,"unitsShipped":52},
     {"date":"2026-11-01","sellableUnits":1766,"sellableCost":17420.49,"unhealthyUnits":72,"unhealthyCost":777.17,"aged90Units":880,"aged90Cost":8837.3,"unsellableUnits":1,"openPo":1311,"unitsShipped":65},
-  ],
+    {"date":"2026-11-08","sellableUnits":1577,"unhealthyUnits":1,"aged90Units":753,"unsellableUnits":1,"unitsShipped":66,"openPo":1268}
+],
 it: [
     {"date":"2026-01-01","sellableUnits":970,"sellableCost":10096.8,"unhealthyUnits":29,"unhealthyCost":170.1,"aged90Units":662,"aged90Cost":5414.85,"unsellableUnits":3,"unitsShipped":17,"openPo":718},
     {"date":"2026-01-04","sellableUnits":1507,"sellableCost":14491.75,"unhealthyUnits":28,"unhealthyCost":269.62,"aged90Units":1259,"aged90Cost":10076.01,"unsellableUnits":1,"unitsShipped":63,"openPo":669},
@@ -31333,11 +31335,12 @@ it: [
     {"date":"2026-09-20","sellableUnits":1829,"sellableCost":18171.14,"aged90Units":374,"aged90Cost":4036.95,"unhealthyUnits":26,"unhealthyCost":260.04,"unsellableUnits":2,"openPo":1664,"unitsShipped":113},
     {"date":"2026-09-27","sellableUnits":2956,"sellableCost":30972.31,"aged90Units":375,"aged90Cost":4030.47,"unhealthyUnits":35,"unhealthyCost":348.48,"unsellableUnits":2,"openPo":1481,"unitsShipped":113},
     {"date":"2026-10-04","sellableUnits":1830,"sellableCost":18337.77,"unhealthyUnits":68,"unhealthyCost":701.2,"aged90Units":360,"aged90Cost":3835.61,"unsellableUnits":1,"openPo":2352,"unitsShipped":139},
-    {"date":"2026-10-11","sellableUnits":1656,"sellableCost":16779.59,"unhealthyUnits":67,"unhealthyCost":673.15,"aged90Units":348,"aged90Cost":3731.34,"unsellableUnits":1,"openPo":2923,"unitsShipped":106},
-    {"date":"2026-10-18","sellableUnits":2027,"sellableCost":19983.61,"unhealthyUnits":76,"unhealthyCost":783.69,"aged90Units":455,"aged90Cost":4669.15,"unsellableUnits":1,"openPo":2653,"unitsShipped":55},
-    {"date":"2026-10-25","sellableUnits":2242,"sellableCost":22641.42,"unhealthyUnits":68,"unhealthyCost":703.11,"aged90Units":499,"aged90Cost":4953.31,"unsellableUnits":1,"openPo":2191,"unitsShipped":60},
-    {"date":"2026-11-01","sellableUnits":2198,"sellableCost":22133.23,"unhealthyUnits":82,"unhealthyCost":786.31,"aged90Units":490,"aged90Cost":4858.56,"unsellableUnits":1,"openPo":1536,"unitsShipped":59},
-  ],
+    {"date":"2026-10-11","sellableUnits":1656,"unhealthyUnits":1,"aged90Units":348,"unsellableUnits":1,"unitsShipped":106,"openPo":2923},
+    {"date":"2026-10-18","sellableUnits":2027,"unhealthyUnits":1,"aged90Units":455,"unsellableUnits":1,"unitsShipped":55,"openPo":2653},
+    {"date":"2026-10-25","sellableUnits":2242,"unhealthyUnits":1,"aged90Units":499,"unsellableUnits":1,"unitsShipped":60,"openPo":2191},
+    {"date":"2026-11-01","sellableUnits":2198,"unhealthyUnits":1,"aged90Units":490,"unsellableUnits":1,"unitsShipped":59,"openPo":1520},
+    {"date":"2026-11-08","sellableUnits":2752,"unhealthyUnits":1,"aged90Units":479,"unsellableUnits":1,"unitsShipped":65,"openPo":1106}
+],
 de: [
     {"date":"2026-01-01","sellableUnits":2922,"sellableCost":32207.49,"unhealthyUnits":94,"unhealthyCost":1219.15,"aged90Units":1194,"aged90Cost":13562.16,"unsellableUnits":6,"unitsShipped":29,"openPo":939},
     {"date":"2026-01-04","sellableUnits":2849,"sellableCost":31362.84,"unhealthyUnits":83,"unhealthyCost":1038.11,"aged90Units":1144,"aged90Cost":13125.6,"unsellableUnits":5,"unitsShipped":98,"openPo":805},
@@ -31379,11 +31382,12 @@ de: [
     {"date":"2026-09-20","sellableUnits":2306,"sellableCost":23806.01,"aged90Units":1002,"aged90Cost":11585.74,"unhealthyUnits":58,"unhealthyCost":740.02,"unsellableUnits":5,"openPo":1233,"unitsShipped":39},
     {"date":"2026-09-27","sellableUnits":2240,"sellableCost":23202.28,"aged90Units":1005,"aged90Cost":11597.83,"unhealthyUnits":73,"unhealthyCost":869.32,"unsellableUnits":6,"openPo":2024,"unitsShipped":32},
     {"date":"2026-10-04","sellableUnits":2162,"sellableCost":22201.33,"unhealthyUnits":75,"unhealthyCost":1021.34,"aged90Units":1007,"aged90Cost":11639.01,"unsellableUnits":6,"openPo":1974,"unitsShipped":62},
-    {"date":"2026-10-11","sellableUnits":2080,"sellableCost":21226.43,"unhealthyUnits":62,"unhealthyCost":760.19,"aged90Units":974,"aged90Cost":11235.82,"unsellableUnits":3,"openPo":2221,"unitsShipped":31},
-    {"date":"2026-10-18","sellableUnits":2088,"sellableCost":21118.21,"unhealthyUnits":88,"unhealthyCost":942.49,"aged90Units":968,"aged90Cost":11089.28,"unsellableUnits":8,"openPo":2166,"unitsShipped":47},
-    {"date":"2026-10-25","sellableUnits":2142,"sellableCost":21397.53,"unhealthyUnits":104,"unhealthyCost":1202.19,"aged90Units":934,"aged90Cost":10614.65,"unsellableUnits":5,"openPo":1932,"unitsShipped":26},
-    {"date":"2026-11-01","sellableUnits":2361,"sellableCost":23729.58,"unhealthyUnits":116,"unhealthyCost":1370.87,"aged90Units":919,"aged90Cost":10347.72,"unsellableUnits":5,"openPo":1175,"unitsShipped":25},
-  ],
+    {"date":"2026-10-11","sellableUnits":2080,"unhealthyUnits":3,"aged90Units":974,"unsellableUnits":3,"unitsShipped":31,"openPo":2221},
+    {"date":"2026-10-18","sellableUnits":2088,"unhealthyUnits":8,"aged90Units":968,"unsellableUnits":8,"unitsShipped":47,"openPo":2166},
+    {"date":"2026-10-25","sellableUnits":2142,"unhealthyUnits":5,"aged90Units":934,"unsellableUnits":5,"unitsShipped":26,"openPo":1932},
+    {"date":"2026-11-01","sellableUnits":2361,"unhealthyUnits":5,"aged90Units":919,"unsellableUnits":5,"unitsShipped":25,"openPo":1175},
+    {"date":"2026-11-08","sellableUnits":2428,"unhealthyUnits":5,"aged90Units":878,"unsellableUnits":5,"unitsShipped":62,"openPo":416}
+],
 uk: [
     {"date":"2026-01-01","sellableUnits":null,"sellableCost":null,"unhealthyUnits":null,"unhealthyCost":null,"aged90Units":null,"aged90Cost":null,"unsellableUnits":null,"unitsShipped":null,"openPo":null},
     {"date":"2026-01-04","sellableUnits":null,"sellableCost":null,"unhealthyUnits":null,"unhealthyCost":null,"aged90Units":null,"aged90Cost":null,"unsellableUnits":null,"unitsShipped":null,"openPo":null},
@@ -31428,8 +31432,8 @@ uk: [
     {"date":"2026-10-11","sellableUnits":3844,"sellableCost":41569.05,"unhealthyUnits":3008,"unhealthyCost":33012.78,"aged90Units":3637,"aged90Cost":39519.71,"unsellableUnits":0,"openPo":100,"unitsShipped":40},
     {"date":"2026-10-18","sellableUnits":3857,"sellableCost":41731.5,"unhealthyUnits":2927,"unhealthyCost":32471.47,"aged90Units":3622,"aged90Cost":39375.87,"unsellableUnits":0,"openPo":49,"unitsShipped":28},
     {"date":"2026-10-25","sellableUnits":3822,"sellableCost":41364.09,"unhealthyUnits":2573,"unhealthyCost":29279.55,"aged90Units":3665,"aged90Cost":39812.02,"unsellableUnits":1,"openPo":205,"unitsShipped":39},
-    {"date":"2026-11-01","sellableUnits":3885,"sellableCost":42060.99,"unhealthyUnits":2801,"unhealthyCost":30650.51,"aged90Units":3629,"aged90Cost":39426.35,"unsellableUnits":0,"openPo":130,"unitsShipped":48},
-  ]
+    {"date":"2026-11-01","sellableUnits":3885,"sellableCost":42060.99,"unhealthyUnits":2801,"unhealthyCost":30650.51,"aged90Units":3629,"aged90Cost":39426.35,"unsellableUnits":0,"openPo":130,"unitsShipped":48}
+]
 };
 
 /* ──────────────────────────────────────────
@@ -31725,6 +31729,7 @@ const FR_SKU_HIST = [
     {"date":"2026-10-18","asin1":{"sellable":0,"unsellable":0,"aged90":0,"openPo":0,"receivedUnits":0,"receivedCost":0.0},"asin2":{"sellable":142,"unsellable":1,"aged90":54,"openPo":0,"receivedUnits":0,"receivedCost":0.0}},
     {"date":"2026-10-25","asin1":{"sellable":0,"unsellable":0,"aged90":0,"openPo":0,"receivedUnits":0,"receivedCost":0.0},"asin2":{"sellable":142,"unsellable":1,"aged90":54,"openPo":0,"receivedUnits":-1,"receivedCost":-15.3}},
     {"date":"2026-11-01","asin1":{"sellable":0,"unsellable":0,"aged90":0,"openPo":0,"receivedUnits":0,"receivedCost":0.0},"asin2":{"sellable":141,"unsellable":1,"aged90":54,"openPo":0,"receivedUnits":-1,"receivedCost":-15.3}},
+    {"date":"2026-11-08","asin1":{"sellable":0,"unsellable":0,"aged90":0,"openPo":0,"receivedUnits":0,"receivedCost":0.0},"asin2":{"sellable":138,"unsellable":1,"aged90":54,"openPo":0,"receivedUnits":0,"receivedCost":0.0}},
   ];
 
 /* ──────────────────────────────────────────
@@ -32650,7 +32655,6 @@ function invStatus(country, agg) {
   const unhealthyPct = agg.unhealthyUnits / agg.sellableUnits * 100;
   if (country === 'de' && agedPct >= 35) return { cls: 'ok', text: 'Overstock (hub PL)' };
   if (agedPct >= 40) return { cls: 'warning', text: 'Aged ' + Math.round(agedPct) + '%' };
-  if (unhealthyPct >= 15) return { cls: 'warning', text: 'Unhealthy ' + Math.round(unhealthyPct) + '%' };
   if (agedPct >= 25) return { cls: 'warning', text: 'Aged ' + Math.round(agedPct) + '%' };
   return { cls: 'ok', text: 'Healthy' };
 }
@@ -32676,17 +32680,15 @@ function renderInventory(indices, periodLabel) {
 
     const sellableEl = document.getElementById('inv' + capC + 'Sellable');
     if (sellableEl) sellableEl.textContent = fmtUnits(agg.sellableUnits);
-    const sellableCostEl = document.getElementById('inv' + capC + 'SellableCost');
-    if (sellableCostEl) sellableCostEl.textContent = fmtEUR(agg.sellableCost);
 
     const agedPct = agg.sellableUnits > 0 ? Math.round(agg.aged90Units / agg.sellableUnits * 100) : 0;
     const agedTagEl = document.getElementById('inv' + capC + 'AgedTag');
     if (agedTagEl) {
-      agedTagEl.textContent = fmtUnits(agg.aged90Units) + ' aged 90d+' + (agedPct ? ' — ' + agedPct + '%' : '') + ' (' + fmtEUR(agg.aged90Cost) + ')';
+      agedTagEl.textContent = fmtUnits(agg.aged90Units) + ' aged 90d+' + (agedPct ? ' — ' + agedPct + '%' : '');
     }
     const unhealthyTagEl = document.getElementById('inv' + capC + 'UnhealthyTag');
     if (unhealthyTagEl) {
-      unhealthyTagEl.textContent = fmtUnits(agg.unhealthyUnits) + ' unhealthy' + (agg.unhealthyCost ? ' (' + fmtEUR(agg.unhealthyCost) + ')' : '');
+      unhealthyTagEl.textContent = fmtUnits(agg.unsellableUnits) + ' no vendibles';
     }
     const poTagEl = document.getElementById('inv' + capC + 'PoTag');
     if (poTagEl) poTagEl.textContent = fmtUnits(agg.openPo) + ' en PO abiertas';
